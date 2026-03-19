@@ -11,6 +11,17 @@ npm run build
 npm run preview
 ```
 
+## Node 版本要求
+
+- 使用 Node `22.12.0`（LTS）
+- Astro 官方不支持奇数版本 Node（例如 `23`），可能出现 Vite 运行时异常（如 `EnvironmentPluginContainer.transform`）
+
+建议在项目根目录执行：
+
+```sh
+nvm use
+```
+
 ## 重要提醒
 
 - 不要编辑 `dist/` 目录下的文件，`dist/` 是构建产物。
