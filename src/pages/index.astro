@@ -55,7 +55,7 @@ const socialLinks = [
 	<main id="home-content" class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 md:px-6 md:py-12">
 		<SiteHeaderNav current="home" />
 
-		<section class="glass reveal-card relative min-h-[92svh] overflow-hidden rounded-3xl p-4 md:p-6" style="--reveal-delay: 80ms;">
+		<section class="glass reveal-card relative overflow-hidden rounded-3xl p-4 md:min-h-[92svh] md:p-6" style="--reveal-delay: 80ms;">
 			<div class="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-[#dbeafe]/50 blur-3xl"></div>
 			<div class="relative grid gap-6 lg:grid-cols-[minmax(0,4fr)_minmax(0,6fr)] lg:items-start">
 				<div class="flex flex-col gap-6">
@@ -71,7 +71,7 @@ const socialLinks = [
 				<div class="space-y-4">
 					<div class="flex flex-wrap gap-2">
 						{interests.map((tag) => (
-							<span class="rounded-full border border-slate-200 bg-white/90 px-3 py-1 text-sm font-medium text-slate-700">
+							<span class="rounded-full border border-slate-200 bg-white/90 px-2.5 py-1 text-xs font-medium text-slate-700 md:px-3 md:text-sm">
 								{tag}
 							</span>
 						))}

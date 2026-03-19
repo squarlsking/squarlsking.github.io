@@ -7,18 +7,18 @@ interface Props {
 const { items, weekLabel } = Astro.props as Props;
 ---
 
-<article class="relative rounded-[1.6rem] border border-slate-200/90 bg-[#fffdf3] p-5 shadow-[0_14px_32px_rgba(15,23,42,0.1)] ring-1 ring-white/70 rotate-[1.6deg]">
-  <span class="absolute -top-3 left-1/2 h-6 w-24 -translate-x-1/2 rotate-[5deg] rounded-sm border border-slate-200/70 bg-white/75"></span>
+<article class="relative rounded-[1.35rem] border border-slate-200/90 bg-[#fffdf3] p-4 shadow-[0_14px_32px_rgba(15,23,42,0.1)] ring-1 ring-white/70 rotate-[0.6deg] md:rounded-[1.6rem] md:p-5 md:rotate-[1.6deg]">
+  <span class="absolute -top-3 left-1/2 h-5 w-20 -translate-x-1/2 rotate-[5deg] rounded-sm border border-slate-200/70 bg-white/75 md:h-6 md:w-24"></span>
   <span class="absolute right-5 top-4 h-3.5 w-3.5 rounded-full bg-amber-200 shadow-[inset_0_1px_2px_rgba(255,255,255,0.65),0_2px_6px_rgba(180,83,9,0.22)]"></span>
 
   <div class="mb-3 flex items-center justify-between gap-3">
-    <h3 class="text-lg font-semibold text-slate-900">Now Working On</h3>
-    {weekLabel && <span class="rounded-full border border-slate-300 bg-white px-2 py-0.5 text-[11px] text-slate-500">{weekLabel}</span>}
+    <h3 class="text-base font-semibold text-slate-900 md:text-lg">Now Working On</h3>
+    {weekLabel && <span class="rounded-full border border-slate-300 bg-white px-2 py-0.5 text-[10px] text-slate-500 md:text-[11px]">{weekLabel}</span>}
   </div>
   <ul class="space-y-2.5">
     {items.map((item) => (
-      <li class="flex items-center gap-2.5 text-sm text-slate-700">
-        <span class={`inline-flex h-[18px] w-[18px] items-center justify-center rounded border ${item.done ? 'border-slate-500 bg-slate-500 text-white' : 'border-slate-400 bg-white'}`}>
+      <li class="flex items-center gap-2 text-xs text-slate-700 md:gap-2.5 md:text-sm">
+        <span class={`inline-flex h-4 w-4 items-center justify-center rounded border text-[10px] md:h-[18px] md:w-[18px] md:text-xs ${item.done ? 'border-slate-500 bg-slate-500 text-white' : 'border-slate-400 bg-white'}`}>
           {item.done ? '✓' : ''}
         </span>
         <span class={item.done ? 'line-through decoration-slate-500/70' : ''}>{item.label}</span>

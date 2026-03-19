@@ -143,6 +143,7 @@ body.intro-lock {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.4rem;
+	white-space: nowrap;
 	padding: 0.4rem 0.75rem;
 	border-radius: 0.65rem;
 	border: 1px solid rgba(148, 163, 184, 0.25);
@@ -156,6 +157,24 @@ body.intro-lock {
 .theme-toggle-btn:hover {
 	transform: translateY(-1px);
 	filter: brightness(0.98);
+}
+
+@media (max-width: 767px) {
+	.site-header-nav {
+		padding: 0.42rem 0.55rem;
+	}
+
+	.site-header-nav .nav-link,
+	.site-header-nav .theme-toggle-btn {
+		padding: 0.36rem 0.62rem;
+		font-size: 0.82rem;
+		line-height: 1.2;
+		border-radius: 0.5rem;
+	}
+
+	.site-header-nav .theme-toggle-btn {
+		margin-left: 0;
+	}
 }
 
 .intro-screen {
