@@ -1,23 +1,46 @@
+---
+import '../styles/global.css';
+import 'katex/dist/katex.min.css';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const {
+	title = '顾宇煊 | Personal Site',
+	description = '要好好学数学的计算机本科生'
+} = Astro.props as Props;
+---
+
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<meta name="description" content={description} />
+		<script is:inline>
+			(() => {
+				const key = 'site-theme-override';
+				const saved = localStorage.getItem(key);
+				const hour = new Date().getHours();
+				const autoTheme = hour >= 7 && hour < 19 ? 'mint' : 'night';
+				const theme = saved === 'mint' || saved === 'night' ? saved : autoTheme;
+				document.documentElement.setAttribute('data-theme', theme);
+			})();
+		</script>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Outfit:wght@400;500;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+			rel="stylesheet"
+		/>
+		<title>{title}</title>
 	</head>
-	<body>
+	<body class="min-h-screen antialiased">
 		<slot />
 	</body>
 </html>
-
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>

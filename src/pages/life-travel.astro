@@ -1,0 +1,37 @@
+---
+import Layout from '../layouts/Layout.astro';
+import TravelGlobe from '../components/react/TravelGlobe';
+import SiteHeaderNav from '../components/SiteHeaderNav.astro';
+
+const travelCards = [
+  { city: '北京', note: '博物馆日 + 夜骑，记录城市的节奏感。' },
+  { city: '东京', note: '地铁与步行结合，探索城市空间设计。' },
+  { city: '巴黎', note: '塞纳河畔拍照，顺便观察街区阅读文化。' }
+];
+---
+
+<Layout title="生活旅游 | 顾宇煊" description="生活与旅行记录，含 3D 足迹地球仪">
+  <main class="mx-auto w-full max-w-6xl px-4 py-10 md:px-6">
+    <SiteHeaderNav current="travel" />
+
+    <section class="glass rounded-3xl p-6 md:p-8">
+      <div class="mb-4 flex items-end justify-between">
+        <h1 class="text-3xl font-bold text-slate-900">生活旅游</h1>
+        <p class="text-sm text-slate-600">Travel Footprints</p>
+      </div>
+
+      <div class="overflow-hidden rounded-2xl border border-white/70 bg-white/35 p-2">
+        <TravelGlobe client:load />
+      </div>
+
+      <div class="mt-6 grid gap-3 md:grid-cols-3">
+        {travelCards.map((item) => (
+          <article class="rounded-2xl border border-white/75 bg-white/80 p-4 shadow-sm">
+            <h2 class="text-lg font-semibold text-slate-900">{item.city}</h2>
+            <p class="mt-1 text-sm text-slate-600">{item.note}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  </main>
+</Layout>

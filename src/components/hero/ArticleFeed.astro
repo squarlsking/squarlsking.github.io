@@ -1,0 +1,53 @@
+---
+interface ArticleItem {
+  title: string;
+  excerpt: string;
+  date: string;
+  toneClass: string;
+  href: string;
+}
+
+interface Props {
+  items: ArticleItem[];
+}
+
+const { items } = Astro.props as Props;
+const placeholderCount = Math.max(0, 4 - items.length);
+---
+
+<section class="rounded-3xl border border-slate-200/70 bg-white/70 p-4 md:p-5 shadow-[0_18px_45px_rgba(15,23,42,0.09)] min-h-[38rem]">
+  <div class="mb-3 flex items-center justify-between">
+    <h3 class="text-xl font-bold text-slate-900">Article Feed</h3>
+    <span class="text-xs font-medium text-slate-600">Latest Notes</span>
+  </div>
+
+  <div class="space-y-3">
+    {items.map((item) => (
+      <a href={item.href} class="block rounded-2xl border border-white/80 bg-white/85 p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+        <article>
+          <div class="flex gap-3">
+            <div class={`h-[72px] w-24 shrink-0 rounded-xl border border-slate-200 ${item.toneClass}`}></div>
+            <div class="min-w-0 space-y-1">
+              <h4 class="truncate text-base font-semibold text-slate-900">{item.title}</h4>
+              <p class="line-clamp-2 text-sm text-slate-600">{item.excerpt}</p>
+              <p class="text-xs text-slate-400">{item.date}</p>
+            </div>
+          </div>
+        </article>
+      </a>
+    ))}
+
+    {Array.from({ length: placeholderCount }).map(() => (
+      <article class="rounded-2xl border border-dashed border-slate-200 bg-white/55 p-3">
+        <div class="flex gap-3">
+          <div class="h-[72px] w-24 shrink-0 rounded-xl border border-slate-200/80 bg-slate-100/70"></div>
+          <div class="min-w-0 flex-1 space-y-2 pt-1">
+            <div class="h-3 w-2/3 rounded bg-slate-200/80"></div>
+            <div class="h-3 w-full rounded bg-slate-100"></div>
+            <div class="h-3 w-3/4 rounded bg-slate-100"></div>
+          </div>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>

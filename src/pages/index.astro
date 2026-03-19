@@ -1,11 +1,129 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import SiteHeaderNav from '../components/SiteHeaderNav.astro';
+import ProfileStickyNote from '../components/hero/ProfileStickyNote.astro';
+import TodoStickyNote from '../components/hero/TodoStickyNote.astro';
+import ArticleFeed from '../components/hero/ArticleFeed.astro';
+import { nowWorking } from '../data/now-working';
+import { getNotes } from '../lib/notes';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const notes = await getNotes();
+
+const interests = ['Computer Science', 'Gaming', 'Novels'];
+
+const thumbTones = [
+	'bg-gradient-to-br from-[#f8fafc] via-[#eef2ff] to-[#e2f1e9]',
+	'bg-gradient-to-br from-[#fffdf7] via-[#f5f3ff] to-[#e8f5ef]',
+	'bg-gradient-to-br from-[#f7f7f5] via-[#ecfdf3] to-[#e2e8f0]',
+	'bg-gradient-to-br from-[#f8fafc] via-[#f1f5f9] to-[#e3f3ea]'
+];
+
+const articleItems = notes.map((item, idx) => ({
+	title: item.title,
+	excerpt: item.summary,
+	date: item.date.toLocaleDateString('zh-CN'),
+	toneClass: thumbTones[idx % thumbTones.length],
+	href: item.url
+}));
+
+const socialLinks = [
+	{
+		key: 'bilibili',
+		label: '哔哩哔哩',
+		href: 'https://space.bilibili.com/3546385267820867?spm_id_from=333.1007.0.0'
+	},
+	{
+		key: 'github',
+		label: 'GitHub',
+		href: 'https://github.com/squarlsking?tab=repositories'
+	}
+] as const;
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="顾宇煊 | 个人主页与博客" description="要好好学数学的计算机本科生">
+	<section class="intro-screen flex min-h-[100svh] items-center justify-center px-6">
+		<div class="text-center">
+			<p class="intro-kicker mb-5 text-xs uppercase tracking-[0.35em]">welcome</p>
+			<h1 class="bilingual-title intro-title mx-auto text-4xl font-bold md:text-6xl">
+				<span class="line-en">Hello World</span>
+				<span class="line-zh">你好，世界</span>
+			</h1>
+			<p class="intro-sub mt-8 text-sm md:text-base">向下滑动，进入记录内容主页</p>
+		</div>
+	</section>
+
+	<main id="home-content" class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 md:px-6 md:py-12">
+		<SiteHeaderNav current="home" />
+
+		<section class="glass reveal-card relative min-h-[92svh] overflow-hidden rounded-3xl p-4 md:p-6" style="--reveal-delay: 80ms;">
+			<div class="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-[#dbeafe]/50 blur-3xl"></div>
+			<div class="relative grid gap-6 lg:grid-cols-[minmax(0,4fr)_minmax(0,6fr)] lg:items-start">
+				<div class="flex flex-col gap-6">
+					<ProfileStickyNote
+						name="顾宇煊"
+						avatarSrc="/image0.jpg"
+						bio="要好好学数学的计算机本科生"
+						socialLinks={[...socialLinks]}
+					/>
+					<TodoStickyNote items={nowWorking.items} weekLabel={nowWorking.weekLabel} />
+				</div>
+
+				<div class="space-y-4">
+					<div class="flex flex-wrap gap-2">
+						{interests.map((tag) => (
+							<span class="rounded-full border border-slate-200 bg-white/90 px-3 py-1 text-sm font-medium text-slate-700">
+								{tag}
+							</span>
+						))}
+					</div>
+					<ArticleFeed items={articleItems} />
+				</div>
+			</div>
+
+		</section>
+
+	</main>
+
+	<script>
+		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const introSeenKey = 'intro-seen-v1';
+
+		if (window.location.hash === '#home-content') {
+			history.replaceState(null, '', window.location.pathname + window.location.search);
+		}
+
+		window.scrollTo({ top: 0, behavior: 'auto' });
+
+		if (!prefersReducedMotion) {
+			document.body.classList.add('intro-lock');
+		}
+
+		const revealTargets = document.querySelectorAll('.reveal-card');
+
+		const observer = new IntersectionObserver(
+			(entries, io) => {
+				entries.forEach((entry) => {
+					if (!entry.isIntersecting) {
+						return;
+					}
+
+					entry.target.classList.add('is-visible');
+					io.unobserve(entry.target);
+				});
+			},
+			{ threshold: 0.18, rootMargin: '0px 0px -8% 0px' }
+		);
+
+		const hasSeenIntro = localStorage.getItem(introSeenKey) === '1';
+		const holdDuration = prefersReducedMotion ? 0 : hasSeenIntro ? 800 : 2600;
+
+		if (!hasSeenIntro) {
+			localStorage.setItem(introSeenKey, '1');
+		}
+
+		window.setTimeout(() => {
+			document.body.classList.remove('intro-lock');
+			revealTargets.forEach((target) => observer.observe(target));
+		}, holdDuration);
+	</script>
 </Layout>

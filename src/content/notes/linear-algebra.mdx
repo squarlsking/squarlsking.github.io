@@ -1,0 +1,24 @@
+---
+title: "线性代数速记"
+summary: "复习特征值分解、SVD 与最小二乘的关系。"
+date: 2026-03-10
+kind: course
+tags: ["Math", "Linear Algebra"]
+featured: true
+---
+
+## 关键结论
+
+对于矩阵 $A \in \mathbb{R}^{m \times n}$，最小二乘问题
+
+$$
+\min_x \lVert Ax - b \rVert_2^2
+$$
+
+等价于求解正规方程：
+
+$$
+A^\top A x = A^\top b
+$$
+
+实践中优先使用 QR 或 SVD 分解，数值稳定性更好。

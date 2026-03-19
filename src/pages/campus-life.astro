@@ -1,0 +1,80 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SiteHeaderNav from '../components/SiteHeaderNav.astro';
+
+const onboardingChecklist = [
+  '报到流程与宿舍办理时间线',
+  '校园卡、网络与教务系统账号激活',
+  '课程选课避坑与学分规划建议',
+  '常用实验软件安装清单（Python / MATLAB / Git）'
+];
+
+const reportLinks = [
+  { name: '数据结构实验报告模板', href: '#' },
+  { name: '操作系统实验记录（示例）', href: '#' },
+  { name: '计算机网络实验脚手架', href: '#' },
+  { name: '数据库课程项目说明书', href: '#' }
+];
+
+const usefulPlatforms = [
+  { name: '教务系统', href: '#' },
+  { name: '课程平台 / LMS', href: '#' },
+  { name: '图书馆资源门户', href: '#' },
+  { name: '学院通知与答疑群入口', href: '#' }
+];
+---
+
+<Layout title="校园指南 | 顾宇煊" description="给学弟学妹的入学与课程资源导航">
+  <main class="mx-auto w-full max-w-6xl px-4 py-10 md:px-6">
+    <SiteHeaderNav current="campus" />
+
+    <section class="glass rounded-3xl p-6 md:p-8">
+      <h1 class="text-3xl font-bold text-slate-900">校园指南</h1>
+      <p class="mt-2 text-slate-600">给学弟学妹的快速上手页面：入学流程、课程实验报告与常用平台入口。</p>
+
+      <div class="mt-6 grid gap-4 lg:grid-cols-[1.2fr_1fr]">
+        <article class="rounded-2xl border border-white/75 bg-white/88 p-5 shadow-sm">
+          <h2 class="text-xl font-semibold text-slate-900">新生入学清单</h2>
+          <ul class="mt-3 space-y-2.5">
+            {onboardingChecklist.map((item) => (
+              <li class="flex items-start gap-2.5 text-sm text-slate-700">
+                <span class="mt-1 h-2 w-2 rounded-full bg-slate-400"></span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </article>
+
+        <article class="rounded-2xl border border-white/75 bg-white/88 p-5 shadow-sm">
+          <h2 class="text-xl font-semibold text-slate-900">课程实验报告链接</h2>
+          <ul class="mt-3 space-y-2">
+            {reportLinks.map((link) => (
+              <li>
+                <a href={link.href} class="inline-flex items-center gap-2 text-sm text-slate-700 underline decoration-slate-300 underline-offset-4 hover:text-slate-900">
+                  <span>{link.name}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </article>
+      </div>
+
+      <article class="mt-4 rounded-2xl border border-white/75 bg-white/88 p-5 shadow-sm">
+        <h2 class="text-xl font-semibold text-slate-900">常用平台入口</h2>
+        <div class="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {usefulPlatforms.map((link) => (
+            <a href={link.href} class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
+              {link.name}
+            </a>
+          ))}
+        </div>
+      </article>
+
+      <p class="mt-4 text-xs text-slate-500">提示：把上面的 <code>#</code> 链接替换为你真实的网盘、仓库或文档地址即可直接使用。</p>
+
+      <div class="mt-5 rounded-xl border border-dashed border-slate-300/80 bg-white/65 p-3 text-xs text-slate-500">
+        更新建议：每学期更新一次课程资源，旧版本保留归档，方便后续同学对照。
+      </div>
+    </section>
+  </main>
+</Layout>

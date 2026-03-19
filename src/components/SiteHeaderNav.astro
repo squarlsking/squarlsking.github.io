@@ -1,0 +1,81 @@
+---
+interface Props {
+  current?: 'home' | 'math' | 'paper' | 'travel' | 'campus';
+}
+
+const { current = 'home' } = Astro.props as Props;
+
+const navItems = [
+  { key: 'home', label: '主页', href: '/' },
+  { key: 'math', label: '数学笔记', href: '/math-notes' },
+  { key: 'paper', label: '论文思考', href: '/paper-thoughts' },
+  { key: 'travel', label: '生活旅游', href: '/life-travel' },
+  { key: 'campus', label: '校园指南', href: '/campus-life' }
+] as const;
+---
+
+<header class="site-header-nav sticky top-3 z-30 rounded-2xl border border-white/75 backdrop-blur-md">
+  <nav class="flex flex-wrap items-center gap-2">
+    {navItems.map((item) => (
+      <a
+        href={item.href}
+        class={`nav-link rounded-lg font-medium ${current === item.key ? 'is-active' : ''}`}
+      >
+        {item.label}
+      </a>
+    ))}
+
+    <button type="button" class="theme-toggle-btn" data-theme-toggle>
+      <span data-theme-label>清新薄荷版</span>
+    </button>
+  </nav>
+</header>
+
+<script>
+  const THEME_KEY = 'site-theme-override';
+  const root = document.documentElement;
+  const toggleBtn = document.querySelector('[data-theme-toggle]');
+  const toggleLabel = document.querySelector('[data-theme-label]');
+  const getAutoTheme = () => {
+    const hour = new Date().getHours();
+    return hour >= 7 && hour < 19 ? 'mint' : 'night';
+  };
+
+  const syncThemeLabel = () => {
+    if (!toggleLabel) {
+      return;
+    }
+
+    const current = root.getAttribute('data-theme') === 'night' ? 'night' : 'mint';
+    toggleLabel.textContent = current === 'mint' ? '清新薄荷版' : '夜间黑灰版';
+  };
+
+  if (!root.getAttribute('data-theme')) {
+    const saved = localStorage.getItem(THEME_KEY);
+    const theme = saved === 'mint' || saved === 'night' ? saved : getAutoTheme();
+    root.setAttribute('data-theme', theme);
+  }
+
+  syncThemeLabel();
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      const current = root.getAttribute('data-theme') === 'night' ? 'night' : 'mint';
+      const next = current === 'mint' ? 'night' : 'mint';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem(THEME_KEY, next);
+      syncThemeLabel();
+    });
+  }
+
+  const header = document.querySelector('.site-header-nav');
+
+  if (header) {
+    const onScroll = () => {
+      header.classList.toggle('is-compact', window.scrollY > 24);
+    };
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+</script>

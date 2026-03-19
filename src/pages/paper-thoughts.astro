@@ -1,0 +1,33 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SiteHeaderNav from '../components/SiteHeaderNav.astro';
+import { getNotes } from '../lib/notes';
+
+const papers = await getNotes('paper');
+---
+
+<Layout title="论文思考 | 顾宇煊" description="论文阅读与思考摘要">
+  <main class="mx-auto w-full max-w-6xl px-4 py-10 md:px-6">
+    <SiteHeaderNav current="paper" />
+
+    <section class="glass rounded-3xl p-6 md:p-8">
+      <h1 class="text-3xl font-bold text-slate-900">论文思考</h1>
+      <p class="mt-2 text-slate-600">关注模型结构、训练策略与可复现实验结论。</p>
+
+      <div class="mt-6 space-y-4">
+        {papers.map((item) => (
+          <article class="rounded-2xl border border-white/75 bg-white/85 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+            <a href={item.url} class="block">
+              <h2 class="text-lg font-semibold text-slate-900">{item.title}</h2>
+              <p class="mt-1 text-sm text-slate-600">{item.summary}</p>
+            </a>
+            <div class="mt-2 flex items-center gap-3 text-xs text-slate-400">
+              <span>{item.date.toLocaleDateString('zh-CN')}</span>
+              {item.link && <a href={item.link} class="text-emerald-700 hover:text-emerald-800" target="_blank" rel="noreferrer">原文链接</a>}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  </main>
+</Layout>

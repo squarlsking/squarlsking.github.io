@@ -1,0 +1,17 @@
+---
+title: "论文阅读: Attention Is All You Need"
+summary: "关注多头注意力结构、位置编码以及训练细节。"
+date: 2026-03-15
+kind: paper
+tags: ["NLP", "Paper Reading"]
+featured: false
+link: "https://arxiv.org/abs/1706.03762"
+---
+
+Transformer 中缩放点积注意力定义为：
+
+$$
+\mathrm{Attention}(Q, K, V) = \mathrm{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V
+$$
+
+其中 $\sqrt{d_k}$ 用于抑制内积值过大导致的 softmax 梯度过小问题。
