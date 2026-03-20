@@ -43,22 +43,27 @@ const socialLinks = [
 <Layout title="顾宇煊 | 个人主页与博客" description="要好好学数学的计算机本科生">
 	<section class="intro-screen flex min-h-[100svh] items-center justify-center px-6">
 		<div class="text-center">
-			<p class="intro-kicker mb-5 text-xs uppercase tracking-[0.35em]">welcome</p>
+			<p class="intro-kicker mb-5 text-xs uppercase tracking-[0.35em]">curated homepage</p>
 			<h1 class="bilingual-title intro-title mx-auto text-4xl font-bold md:text-6xl">
 				<span class="line-en">Hello World</span>
 				<span class="line-zh">你好，世界</span>
 			</h1>
-			<p class="intro-sub mt-8 text-sm md:text-base">向下滑动，进入记录内容主页</p>
+			<p class="intro-sub mt-8 text-sm md:text-base">向下滑动，进入我的数字画廊</p>
 		</div>
 	</section>
 
 	<main id="home-content" class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 md:px-6 md:py-12">
 		<SiteHeaderNav current="home" />
 
-		<section class="glass reveal-card relative overflow-hidden rounded-3xl p-4 md:min-h-[92svh] md:p-6" style="--reveal-delay: 80ms;">
-			<div class="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-[#dbeafe]/50 blur-3xl"></div>
-			<div class="relative grid gap-6 lg:grid-cols-[minmax(0,4fr)_minmax(0,6fr)] lg:items-start">
-				<div class="flex flex-col gap-6">
+		<section class="glass paper-panel reveal-card relative overflow-hidden rounded-3xl p-4 md:min-h-[92svh] md:p-6" style="--reveal-delay: 80ms;">
+			<div class="poetic-fog -left-20 top-8 h-44 w-44"></div>
+			<div class="poetic-fog -right-16 top-16 h-56 w-56"></div>
+			<div class="relative grid gap-6 lg:grid-cols-12 lg:items-start">
+				<div class="flex flex-col gap-6 lg:col-span-5">
+					<div>
+						<p class="editorial-kicker">Feature Column</p>
+						<h2 class="gallery-heading text-2xl text-slate-800 md:text-3xl">Identity & Weekly Notes</h2>
+					</div>
 					<ProfileStickyNote
 						name="顾宇煊"
 						avatarSrc="/image0.jpg"
@@ -68,10 +73,15 @@ const socialLinks = [
 					<TodoStickyNote items={nowWorking.items} weekLabel={nowWorking.weekLabel} />
 				</div>
 
-				<div class="space-y-4">
+				<div class="space-y-4 lg:col-span-7 lg:pt-14">
+					<div class="space-y-1.5">
+						<p class="editorial-kicker">Curated Feed</p>
+						<h2 class="gallery-heading text-2xl text-slate-800 md:text-[2rem]">Essay & Math Fragments</h2>
+						<p class="text-sm text-slate-600">按时间顺序整理的笔记入口，保持阅读节奏与主题聚焦。</p>
+					</div>
 					<div class="flex flex-wrap gap-2">
 						{interests.map((tag) => (
-							<span class="rounded-full border border-slate-200 bg-white/90 px-2.5 py-1 text-xs font-medium text-slate-700 md:px-3 md:text-sm">
+							<span class="paper-chip rounded-full border border-[#d6d3ca] bg-[#fffdf6]/92 px-2.5 py-1 text-xs font-medium text-slate-700 md:px-3 md:text-sm">
 								{tag}
 							</span>
 						))}

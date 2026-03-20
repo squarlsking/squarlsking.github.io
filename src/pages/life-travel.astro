@@ -14,24 +14,48 @@ const travelCards = [
   <main class="mx-auto w-full max-w-6xl px-4 py-10 md:px-6">
     <SiteHeaderNav current="travel" />
 
-    <section class="glass rounded-3xl p-6 md:p-8">
-      <div class="mb-4 flex items-end justify-between">
-        <h1 class="text-3xl font-bold text-slate-900">生活旅游</h1>
-        <p class="text-sm text-slate-600">Travel Footprints</p>
+    <section class="glass paper-panel relative overflow-hidden rounded-3xl p-6 md:p-8">
+      <div class="poetic-fog -left-20 top-10 h-52 w-52"></div>
+      <div class="poetic-fog right-0 top-28 h-64 w-64"></div>
+
+      <div class="relative mb-5 flex items-end justify-between">
+        <div>
+          <p class="editorial-kicker">Travel Archive</p>
+          <h1 class="gallery-heading text-3xl font-semibold text-slate-900">生活旅游</h1>
+        </div>
+        <p class="text-sm uppercase tracking-[0.14em] text-[#9a7f4b]">Travel Footprints</p>
       </div>
 
-      <div class="overflow-hidden rounded-2xl border border-white/70 bg-white/35 p-2">
-        <TravelGlobe client:load />
+      <div class="paper-panel relative overflow-hidden rounded-2xl border border-[#d8d4c8]/70 bg-white/35 p-2">
+        <div class="parallax-layer" data-parallax="0.08">
+          <TravelGlobe client:load />
+        </div>
+        <div class="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/45 to-transparent"></div>
       </div>
 
-      <div class="mt-6 grid gap-3 md:grid-cols-3">
+      <div class="relative mt-6 grid gap-3 md:grid-cols-3">
         {travelCards.map((item) => (
-          <article class="rounded-2xl border border-white/75 bg-white/80 p-4 shadow-sm">
-            <h2 class="text-lg font-semibold text-slate-900">{item.city}</h2>
+          <article class="editorial-card rounded-2xl border border-[#dfdbcf]/80 bg-white/84 p-4">
+            <p class="text-[10px] uppercase tracking-[0.16em] text-slate-500">City Note</p>
+            <h2 class="gallery-heading text-xl font-semibold text-slate-900">{item.city}</h2>
             <p class="mt-1 text-sm text-slate-600">{item.note}</p>
           </article>
         ))}
       </div>
     </section>
   </main>
+
+	<script>
+		const layers = document.querySelectorAll('[data-parallax]');
+		const onScroll = () => {
+			const offset = window.scrollY;
+			layers.forEach((el) => {
+				const speed = Number(el.getAttribute('data-parallax') || '0');
+				(el as HTMLElement).style.transform = `translate3d(0, ${offset * speed}px, 0)`;
+			});
+		};
+
+		onScroll();
+		window.addEventListener('scroll', onScroll, { passive: true });
+	</script>
 </Layout>

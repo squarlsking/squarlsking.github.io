@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface TravelLocation {
   lat: number;
@@ -81,11 +81,13 @@ const travelArcs: TravelArc[] = [...hangzhouFirstRoutes, ...shenzhenRoutes]
 
 export default function TravelGlobe() {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     let mounted = true;
     let globe: any;
     let onResize: (() => void) | undefined;
+    const isNightTheme = document.documentElement.getAttribute('data-theme') === 'night';
 
     const init = async () => {
       if (!containerRef.current) {
@@ -93,48 +95,57 @@ export default function TravelGlobe() {
       }
 
       const module = await import('globe.gl');
-      const Globe = module.default;
+      const createGlobe = module.default as unknown as () => (element: HTMLElement) => any;
 
       if (!mounted || !containerRef.current) {
         return;
       }
 
-      const gold = '#ffd86b';
-      const ringBaseColor = '255,216,107';
+      const gold = '#d8bb82';
+      const ringBaseColor = '216,187,130';
+      const arcStrong = 'rgba(235,208,152,0.72)';
+      const arcSoft = 'rgba(235,208,152,0.26)';
 
-      globe = Globe()(containerRef.current)
+      globe = createGlobe()(containerRef.current)
         .backgroundColor('rgba(0,0,0,0)')
-        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-day.jpg')
+        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-water.png')
         .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
         .showAtmosphere(true)
         .atmosphereColor(gold)
-        .atmosphereAltitude(0.18)
+        .atmosphereAltitude(0.2)
         .ringsData(travelLocations)
-        .ringLat((d) => (d as TravelLocation).lat)
-        .ringLng((d) => (d as TravelLocation).lng)
+        .ringLat((d: TravelLocation) => d.lat)
+        .ringLng((d: TravelLocation) => d.lng)
         .ringColor(() => (t: number) => `rgba(${ringBaseColor}, ${0.82 * (1 - t)})`)
-        .ringMaxRadius(3.6)
-        .ringPropagationSpeed(0.8)
-        .ringRepeatPeriod(1500)
+        .ringMaxRadius(3.9)
+        .ringPropagationSpeed(0.76)
+        .ringRepeatPeriod(1650)
         .arcsData(travelArcs)
-        .arcStartLat((d) => (d as TravelArc).startLat)
-        .arcStartLng((d) => (d as TravelArc).startLng)
-        .arcEndLat((d) => (d as TravelArc).endLat)
-        .arcEndLng((d) => (d as TravelArc).endLng)
-        .arcColor(() => [gold, gold])
-        .arcAltitude(0.16)
-        .arcStroke(0.65)
-        .arcDashLength(0.24)
-        .arcDashGap(1.1)
-        .arcDashAnimateTime(3200)
+        .arcStartLat((d: TravelArc) => d.startLat)
+        .arcStartLng((d: TravelArc) => d.startLng)
+        .arcEndLat((d: TravelArc) => d.endLat)
+        .arcEndLng((d: TravelArc) => d.endLng)
+        .arcColor(() => [arcStrong, arcSoft])
+        .arcAltitude(0.13)
+        .arcStroke(0.5)
+        .arcDashLength(1)
+        .arcDashGap(0)
+        .arcDashAnimateTime(0)
         .labelsData(travelLocations)
-        .labelLat((d) => (d as TravelLocation).lat)
-        .labelLng((d) => (d as TravelLocation).lng)
-        .labelText((d) => (d as TravelLocation).label)
-        .labelColor(() => (isNightTheme ? '#e2e8f0' : '#334155'))
+        .labelLat((d: TravelLocation) => d.lat)
+        .labelLng((d: TravelLocation) => d.lng)
+        .labelText((d: TravelLocation) => d.label)
+        .labelColor(() => (isNightTheme ? '#f3f4f6' : '#334155'))
         .labelDotRadius(0.2)
         .labelSize(0.65)
         .labelResolution(2);
+
+      const material = globe.globeMaterial();
+      material.color.set('#9ebfd4');
+      material.emissive.set('#15243a');
+      material.emissiveIntensity = 0.18;
+      material.shininess = 0.08;
+      material.specular.set('#1f2a38');
 
       globe.width(containerRef.current.clientWidth);
       globe.height(440);
@@ -142,11 +153,17 @@ export default function TravelGlobe() {
 
       const controls = globe.controls();
       controls.autoRotate = true;
-      controls.autoRotateSpeed = 0.24;
+      controls.autoRotateSpeed = 0.2;
       controls.enableZoom = true;
       controls.enablePan = false;
       controls.minDistance = 120;
       controls.maxDistance = 380;
+
+      window.setTimeout(() => {
+        if (mounted) {
+          setIsReady(true);
+        }
+      }, 120);
 
       onResize = () => {
         if (!containerRef.current || !globe) {
@@ -172,5 +189,5 @@ export default function TravelGlobe() {
     };
   }, []);
 
-  return <div ref={containerRef} className="h-[440px] w-full" />;
+  return <div ref={containerRef} className={`globe-stage h-[440px] w-full ${isReady ? 'is-ready' : ''}`} />;
 }
