@@ -159,11 +159,14 @@ export default function TravelGlobe() {
       controls.minDistance = 120;
       controls.maxDistance = 380;
 
-      window.setTimeout(() => {
-        if (mounted) {
-          setIsReady(true);
-        }
-      }, 120);
+      if (mounted) {
+        // Keep a short buffer so the placeholder fades naturally instead of popping.
+        window.setTimeout(() => {
+          if (mounted) {
+            setIsReady(true);
+          }
+        }, 220);
+      }
 
       onResize = () => {
         if (!containerRef.current || !globe) {
@@ -189,5 +192,13 @@ export default function TravelGlobe() {
     };
   }, []);
 
-  return <div ref={containerRef} className={`globe-stage h-[440px] w-full ${isReady ? 'is-ready' : ''}`} />;
+  return (
+    <div className="globe-shell relative h-[440px] w-full">
+      <div className={`globe-skeleton ${isReady ? 'is-hidden' : ''}`}>
+        <div className="globe-skeleton-core"></div>
+        <p className="globe-skeleton-label">Loading travel atlas...</p>
+      </div>
+      <div ref={containerRef} className={`globe-stage h-[440px] w-full ${isReady ? 'is-ready' : ''}`} />
+    </div>
+  );
 }

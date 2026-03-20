@@ -6,11 +6,11 @@ interface Props {
 const { current = 'home' } = Astro.props as Props;
 
 const navItems = [
-  { key: 'home', label: '主页', href: '/' },
-  { key: 'math', label: '数学笔记', href: '/math-notes' },
-  { key: 'paper', label: '论文思考', href: '/paper-thoughts' },
-  { key: 'travel', label: '生活旅游', href: '/life-travel' },
-  { key: 'campus', label: '校园指南', href: '/campus-life' }
+  { key: 'home', label: 'Home', href: '/' },
+  { key: 'math', label: 'Math Notes', href: '/math-notes' },
+  { key: 'paper', label: 'Paper Thoughts', href: '/paper-thoughts' },
+  { key: 'travel', label: 'Life & Travel', href: '/life-travel' },
+  { key: 'campus', label: 'Campus Guide', href: '/campus-life' }
 ] as const;
 ---
 
@@ -26,7 +26,7 @@ const navItems = [
     ))}
 
     <button type="button" class="theme-toggle-btn" data-theme-toggle>
-      <span data-theme-label>清新薄荷版</span>
+      <span data-theme-label>Daylight Paper</span>
     </button>
   </nav>
 </header>
@@ -47,7 +47,7 @@ const navItems = [
     }
 
     const current = root.getAttribute('data-theme') === 'night' ? 'night' : 'mint';
-    toggleLabel.textContent = current === 'mint' ? '清新薄荷版' : '夜间黑灰版';
+    toggleLabel.textContent = current === 'mint' ? 'Daylight Paper' : 'Midnight Obsidian';
   };
 
   if (!root.getAttribute('data-theme')) {
@@ -68,14 +68,4 @@ const navItems = [
     });
   }
 
-  const header = document.querySelector('.site-header-nav');
-
-  if (header) {
-    const onScroll = () => {
-      header.classList.toggle('is-compact', window.scrollY > 24);
-    };
-
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-  }
 </script>
