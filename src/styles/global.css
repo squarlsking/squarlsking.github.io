@@ -213,7 +213,10 @@ body.intro-lock {
 	}
 
 	.site-header-nav .theme-toggle-btn {
-		margin-left: 0;
+		margin-left: 0.35rem;
+		padding: 0.3rem 0.5rem;
+		font-size: 0.74rem;
+		letter-spacing: 0.01em;
 	}
 }
 
@@ -577,12 +580,15 @@ body.intro-lock {
 	z-index: 0;
 }
 
-.editorial-home > * {
+.editorial-home > :not(.site-header-nav) {
 	position: relative;
 	z-index: 1;
 }
 
 .editorial-home .site-header-nav {
+	position: sticky;
+	top: 0.75rem;
+	z-index: 40;
 	background: color-mix(in srgb, var(--header-bg), transparent 18%);
 	backdrop-filter: blur(10px);
 	-webkit-backdrop-filter: blur(10px);

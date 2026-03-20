@@ -47,6 +47,11 @@ const navItems = [
     }
 
     const current = root.getAttribute('data-theme') === 'night' ? 'night' : 'mint';
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    if (isMobile) {
+      toggleLabel.textContent = current === 'mint' ? 'Day' : 'Night';
+      return;
+    }
     toggleLabel.textContent = current === 'mint' ? 'Daylight Paper' : 'Midnight Obsidian';
   };
 
@@ -67,5 +72,7 @@ const navItems = [
       syncThemeLabel();
     });
   }
+
+  window.matchMedia('(max-width: 767px)').addEventListener('change', syncThemeLabel);
 
 </script>
