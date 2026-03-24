@@ -333,10 +333,10 @@ body.intro-lock {
 }
 
 .globe-stage {
-	opacity: 0;
-	transform: scale(0.84) translateY(20px);
-	filter: blur(8px);
-	transition: opacity 480ms ease, filter 480ms ease;
+	opacity: 1;
+	transform: none;
+	filter: none;
+	transition: opacity 380ms ease;
 }
 
 .globe-shell {
@@ -387,6 +387,17 @@ body.intro-lock {
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
 	color: #6d6a61;
+}
+
+.globe-fallback {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(145deg, rgba(247, 241, 231, 0.9), rgba(238, 232, 219, 0.78));
+	border: 0.5px solid rgba(190, 177, 148, 0.45);
+	z-index: 3;
 }
 
 .globe-stage.is-ready {

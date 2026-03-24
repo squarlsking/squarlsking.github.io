@@ -82,34 +82,61 @@ const travelArcs: TravelArc[] = [...hangzhouFirstRoutes, ...shenzhenRoutes]
 export default function TravelGlobe() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     let mounted = true;
+    let settled = false;
     let globe: any;
     let onResize: (() => void) | undefined;
+    let resizeObserver: ResizeObserver | undefined;
     const isNightTheme = document.documentElement.getAttribute('data-theme') === 'night';
 
+    const failWithReason = (reason: string) => {
+      settled = true;
+      if (mounted) {
+        setErrorMessage(reason);
+      }
+      window.dispatchEvent(new CustomEvent('travel-globe-error', { detail: { reason } }));
+    };
+
+    const initTimeout = window.setTimeout(() => {
+      if (!settled && mounted) {
+        failWithReason('InitTimeout: 3D 地球仪组件 5 秒内未完成初始化。');
+      }
+    }, 5000);
+
     const init = async () => {
-      if (!containerRef.current) {
-        return;
-      }
+      try {
+        if (!containerRef.current) {
+          return;
+        }
 
-      const module = await import('globe.gl');
-      const createGlobe = module.default as unknown as () => (element: HTMLElement) => any;
+        const probe = document.createElement('canvas');
+        const webglReady = Boolean(probe.getContext('webgl2') || probe.getContext('webgl'));
+        if (!webglReady) {
+          throw new Error('当前浏览器或设备未启用 WebGL，无法渲染 3D 地球仪。');
+        }
 
-      if (!mounted || !containerRef.current) {
-        return;
-      }
+        const module = await import('globe.gl');
+        const createGlobe = module.default as unknown as () => (element: HTMLElement) => any;
 
-      const gold = '#d8bb82';
-      const ringBaseColor = '216,187,130';
-      const arcStrong = 'rgba(235,208,152,0.72)';
-      const arcSoft = 'rgba(235,208,152,0.26)';
+        if (!mounted || !containerRef.current) {
+          return;
+        }
 
-      globe = createGlobe()(containerRef.current)
-        .backgroundColor('rgba(0,0,0,0)')
-        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-water.png')
-        .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+        const gold = '#d8bb82';
+        const ringBaseColor = '216,187,130';
+        const arcStrong = 'rgba(235,208,152,0.72)';
+        const arcSoft = 'rgba(235,208,152,0.26)';
+        const baseUrl = import.meta.env.BASE_URL || '/';
+        const globeTextureUrl = `${baseUrl}globe/earth-water.png`;
+        const bumpTextureUrl = `${baseUrl}globe/earth-topology.png`;
+
+        globe = createGlobe()(containerRef.current)
+          .backgroundColor('rgba(0,0,0,0)')
+          .globeImageUrl(globeTextureUrl)
+          .bumpImageUrl(bumpTextureUrl)
         .showAtmosphere(true)
         .atmosphereColor(gold)
         .atmosphereAltitude(0.2)
@@ -140,51 +167,71 @@ export default function TravelGlobe() {
         .labelSize(0.65)
         .labelResolution(2);
 
-      const material = globe.globeMaterial();
-      material.color.set('#9ebfd4');
-      material.emissive.set('#15243a');
-      material.emissiveIntensity = 0.18;
-      material.shininess = 0.08;
-      material.specular.set('#1f2a38');
+        const material = globe.globeMaterial();
+        material.color.set('#9ebfd4');
+        material.emissive.set('#15243a');
+        material.emissiveIntensity = 0.18;
+        material.shininess = 0.08;
+        material.specular.set('#1f2a38');
 
-      globe.width(containerRef.current.clientWidth);
-      globe.height(440);
-      globe.pointOfView({ lat: 28, lng: 108, altitude: 1.95 }, 1000);
-
-      const controls = globe.controls();
-      controls.autoRotate = true;
-      controls.autoRotateSpeed = 0.2;
-      controls.enableZoom = true;
-      controls.enablePan = false;
-      controls.minDistance = 120;
-      controls.maxDistance = 380;
-
-      if (mounted) {
-        // Keep a short buffer so the placeholder fades naturally instead of popping.
-        window.setTimeout(() => {
-          if (mounted) {
-            setIsReady(true);
+        const applySize = () => {
+          if (!containerRef.current || !globe) {
+            return;
           }
-        }, 220);
-      }
 
-      onResize = () => {
-        if (!containerRef.current || !globe) {
-          return;
+          const width = containerRef.current.clientWidth;
+          if (width > 0) {
+            globe.width(width);
+          }
+        };
+
+        applySize();
+        globe.height(440);
+        globe.pointOfView({ lat: 28, lng: 108, altitude: 1.95 }, 1000);
+
+        const controls = globe.controls();
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.2;
+        controls.enableZoom = true;
+        controls.enablePan = false;
+        controls.minDistance = 120;
+        controls.maxDistance = 380;
+
+        if (mounted) {
+          settled = true;
+          setIsReady(true);
+          setErrorMessage('');
+          window.dispatchEvent(new CustomEvent('travel-globe-ready'));
         }
 
-        globe.width(containerRef.current.clientWidth);
-      };
+        onResize = () => applySize();
 
-      window.addEventListener('resize', onResize);
+        if (typeof ResizeObserver !== 'undefined' && containerRef.current) {
+          resizeObserver = new ResizeObserver(() => applySize());
+          resizeObserver.observe(containerRef.current);
+        }
+
+        window.addEventListener('resize', onResize);
+      } catch (error) {
+        const reason =
+          error instanceof Error
+            ? `${error.name}: ${error.message}`
+            : `UnknownError: ${String(error)}`;
+        failWithReason(reason);
+        console.error('Failed to initialize TravelGlobe:', error);
+      }
     };
 
     void init();
 
     return () => {
       mounted = false;
+      window.clearTimeout(initTimeout);
       if (onResize) {
         window.removeEventListener('resize', onResize);
+      }
+      if (resizeObserver) {
+        resizeObserver.disconnect();
       }
       if (globe && typeof globe._destructor === 'function') {
         globe._destructor();
@@ -193,12 +240,18 @@ export default function TravelGlobe() {
   }, []);
 
   return (
-    <div className="globe-shell relative h-[440px] w-full">
-      <div className={`globe-skeleton ${isReady ? 'is-hidden' : ''}`}>
-        <div className="globe-skeleton-core"></div>
-        <p className="globe-skeleton-label">Loading travel atlas...</p>
-      </div>
-      <div ref={containerRef} className={`globe-stage h-[440px] w-full ${isReady ? 'is-ready' : ''}`} />
+    <div ref={containerRef} className={`globe-stage globe-shell relative h-[440px] w-full overflow-hidden ${isReady ? 'is-ready' : ''}`}>
+      {!isReady && !errorMessage ? (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[#f4eee1]/85">
+          <p className="text-xs uppercase tracking-[0.14em] text-[#7e6842]">3D Globe Loading...</p>
+        </div>
+      ) : null}
+      {errorMessage ? (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[#f8eee6]/95 p-6 text-center">
+          <p className="text-xs uppercase tracking-[0.14em] text-[#8c4d3f]">3D Globe Failed</p>
+          <p className="max-w-lg text-sm leading-6 text-[#6c3f35]">{errorMessage}</p>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -2,12 +2,48 @@
 import Layout from '../layouts/Layout.astro';
 import TravelGlobe from '../components/react/TravelGlobe';
 import SiteHeaderNav from '../components/SiteHeaderNav.astro';
+import imageMap from '../assets/Image-map.jpg';
 
-const travelCards = [
-  { city: '北京', note: '博物馆日 + 夜骑，记录城市的节奏感。' },
-  { city: '东京', note: '地铁与步行结合，探索城市空间设计。' },
-  { city: '巴黎', note: '塞纳河畔拍照，顺便观察街区阅读文化。' }
+const travelStories = [
+  {
+    city: '东北',
+    summary: '遇到东北规则怪谈，结果是：我胖了好多。',
+    lines: [
+      '怪谈规则如下：',
+      '1. 溜肉段就是咸的糖醋里脊。',
+      '2. 雪蛤不是鱼。',
+      '3. 两块钱的雪糕可以买。',
+      '4. 冻梨要立即吃。',
+      '5. 晚上不要吃烧烤。'
+    ]
+  },
+  {
+    city: '海口',
+    summary: '认识了很多优秀的朋友，也刷新了我对城市与海的理解。',
+    lines: [
+      '好幸运！认识了好多优秀的朋友。',
+      '这次我才知道，海口是海南省会。',
+      '而且海口物价挺高，尤其是水果和海鲜，打破了我原本的刻板印象。',
+      '对比下来，深圳 76 渔船加工后的海虾大概 80 一斤，而这里单买野生海虾也要 70 一斤。',
+      '海口市中心房价居然约 1.5w 一平，作为省会让我很意外。',
+      '不同地方的海，结合人文因素，感觉完全不同：三亚像资本主义海，海口和珠海更像慢生活的海，深圳则是牛马的海。',
+      '最后特别感谢 cqt 和 cy 夫妇带小盆友玩。'
+    ]
+  },
+  {
+    city: '陆丰支教',
+    summary: '刚结束支教，有一点不舍，也重新感受到生活的热度。',
+    lines: [
+      '刚刚结束的支教，真的会有一点点不舍。',
+      '小朋友都很可爱，有几天我还没起床就听见他们喊“松鼠老师快下来”，还给我组了各种 cp。',
+      '烈日下走了 10 公里，最终才遇见海。那一刻第一次很深刻地意识到：沙子是滚烫的，海水是冰凉的。',
+      '浪花褪去后，沙滩上的小孔会冒泡泡。',
+      '还有一点很幸福：天天在吃水果。对面小店阿婆操着潮汕话往我手上递荔枝，还有小朋友送的百香果、龙眼和小零食。',
+      '感觉自己去掉了淡淡的死人味，又活过来了。'
+    ]
+  }
 ];
+
 ---
 
 <Layout title="生活旅游 | 顾宇煊" description="生活与旅行记录，含 3D 足迹地球仪">
@@ -30,35 +66,198 @@ const travelCards = [
         <div class="globe-placard pointer-events-none absolute left-4 top-4 z-20 rounded-full border border-[#d8c9a4]/70 bg-[#f6f0e5]/88 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-[#6f5a34]">
           Atlas Edition 2026
         </div>
-        <div class="parallax-layer" data-parallax="0.08">
-          <TravelGlobe client:load />
+
+        <div class="relative z-20 mb-3 flex flex-wrap items-center justify-end gap-2 px-2 pt-2">
+          <button
+            type="button"
+            id="travel-view-map"
+            class="rounded-full border border-[#ccb88e]/80 bg-[#f5eddc] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-[#6c5631] transition hover:bg-[#efe2cb]"
+          >
+            地图
+          </button>
+          <button
+            type="button"
+            id="travel-view-globe"
+            class="rounded-full border border-[#b6c6d1]/90 bg-[#eaf1f5] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-[#3f5b6f] transition hover:bg-[#dceaf1]"
+          >
+            地球仪
+          </button>
         </div>
-        <div class="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/45 to-transparent"></div>
+
+        <div id="travel-map-panel" class="relative overflow-hidden rounded-xl border border-[#d3c9b4]/65 bg-[linear-gradient(160deg,#f6f0e5_0%,#f1e9dc_55%,#e8e4d8_100%)] p-3 md:p-4">
+          <div class="pointer-events-none absolute -left-20 -top-16 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(160,187,211,0.24)_0%,rgba(160,187,211,0)_70%)]"></div>
+          <div class="pointer-events-none absolute -bottom-20 -right-12 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(212,179,121,0.28)_0%,rgba(212,179,121,0)_74%)]"></div>
+
+          <div class="relative mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-[#d8ccba]/75 pb-3">
+            <p class="text-[11px] uppercase tracking-[0.16em] text-[#7b6640]">Journey Atlas</p>
+            <p class="text-[11px] uppercase tracking-[0.14em] text-[#9b7f4d]">Travel Map</p>
+          </div>
+
+          <figure class="relative overflow-hidden rounded-lg border border-[#d6cbb8]/70 bg-[#f8f4ec]">
+            <img
+              src={imageMap.src}
+              alt="旅行地图"
+              class="block h-[360px] w-full object-cover md:h-[420px]"
+              loading="lazy"
+              decoding="async"
+            />
+          </figure>
+        </div>
+
+        <div id="travel-globe-panel" class="relative hidden overflow-hidden rounded-xl border border-[#c8d5de]/75 bg-[linear-gradient(155deg,rgba(246,241,232,0.85),rgba(223,232,238,0.82))] p-2">
+          <TravelGlobe client:load />
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white/55 to-transparent"></div>
+        </div>
+
+        <p id="travel-globe-status" class="px-2 pt-2 text-xs text-[#6f5a34]"></p>
       </div>
 
       <div class="relative mt-6 grid gap-3 md:grid-cols-3">
-        {travelCards.map((item) => (
-          <article class="editorial-card rounded-2xl border border-[#dfdbcf]/80 bg-white/84 p-4">
-            <p class="text-[10px] uppercase tracking-[0.16em] text-slate-500">City Note</p>
+        {travelStories.map((item) => (
+          <button
+            type="button"
+            class="travel-story-trigger editorial-card rounded-2xl border border-[#dfdbcf]/80 bg-white/84 p-4 text-left transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(41,32,16,0.12)]"
+            data-city={item.city}
+            data-summary={item.summary}
+            data-lines={JSON.stringify(item.lines)}
+          >
+            <p class="text-[10px] uppercase tracking-[0.16em] text-slate-500">Travel Note</p>
             <h2 class="gallery-heading text-xl font-semibold text-slate-900">{item.city}</h2>
-            <p class="mt-1 text-sm text-slate-600">{item.note}</p>
-          </article>
+            <p class="mt-1 text-sm text-slate-600">{item.summary}</p>
+            <p class="mt-3 text-[11px] uppercase tracking-[0.14em] text-[#9a7f4b]">点击展开阅读</p>
+          </button>
         ))}
+      </div>
+
+      <div id="travel-story-modal" class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 opacity-0 transition" aria-hidden="true">
+        <div class="w-full max-w-2xl rounded-3xl border border-[#d9cfbd]/85 bg-[#fffaf1] p-6 shadow-[0_28px_68px_rgba(20,15,8,0.35)] md:p-8">
+          <div class="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <p class="text-[11px] uppercase tracking-[0.16em] text-[#8a7447]">Expanded Story</p>
+              <h3 id="travel-story-title" class="gallery-heading text-2xl font-semibold text-slate-900">Travel Note</h3>
+            </div>
+            <button id="travel-story-close" type="button" class="rounded-full border border-[#ccb88e]/80 px-3 py-1 text-xs uppercase tracking-[0.12em] text-[#6c5631] transition hover:bg-[#f2e8d5]">Close</button>
+          </div>
+          <p id="travel-story-summary" class="mb-4 text-sm text-slate-700"></p>
+          <div id="travel-story-lines" class="space-y-3 text-[15px] leading-7 text-slate-700"></div>
+        </div>
       </div>
     </section>
   </main>
 
 	<script>
-		const layers = document.querySelectorAll('[data-parallax]');
-		const onScroll = () => {
-			const offset = window.scrollY;
-			layers.forEach((el) => {
-				const speed = Number(el.getAttribute('data-parallax') || '0');
-				(el as HTMLElement).style.transform = `translate3d(0, ${offset * speed}px, 0)`;
-			});
-		};
+    const mapPanel = document.querySelector('#travel-map-panel');
+    const globePanel = document.querySelector('#travel-globe-panel');
+    const mapBtn = document.querySelector('#travel-view-map');
+    const globeBtn = document.querySelector('#travel-view-globe');
+    const globeStatus = document.querySelector('#travel-globe-status');
 
-		onScroll();
-		window.addEventListener('scroll', onScroll, { passive: true });
+    let globeReady = false;
+    let globeError = '';
+
+    const setStatus = (text, warn = false) => {
+      if (!globeStatus) return;
+      globeStatus.textContent = text;
+      globeStatus.classList.toggle('text-[#8a4b3e]', warn);
+    };
+
+    const showMap = () => {
+      mapPanel?.classList.remove('hidden');
+      globePanel?.classList.add('hidden');
+      setStatus('当前显示地图视图。');
+    };
+
+    const showGlobe = () => {
+      mapPanel?.classList.add('hidden');
+      globePanel?.classList.remove('hidden');
+      if (globeReady) {
+        setStatus('地球仪已就绪。');
+      } else if (globeError) {
+        setStatus(`地球仪组件报错：${globeError}`, true);
+      } else {
+        setStatus('正在加载地球仪...');
+      }
+    };
+
+    window.addEventListener('travel-globe-ready', () => {
+      globeReady = true;
+      globeError = '';
+      if (!globePanel?.classList.contains('hidden')) {
+        setStatus('地球仪已就绪。');
+      }
+    });
+
+    window.addEventListener('travel-globe-error', (event) => {
+      const customEvent = event;
+      const reason = customEvent && typeof customEvent === 'object' && 'detail' in customEvent
+        ? customEvent.detail?.reason
+        : '';
+      globeReady = false;
+      globeError = reason || '未知错误';
+      if (!globePanel?.classList.contains('hidden')) {
+        setStatus(`地球仪组件报错：${globeError}`, true);
+      }
+    });
+
+    mapBtn?.addEventListener('click', showMap);
+    globeBtn?.addEventListener('click', showGlobe);
+
+    showMap();
+
+    const modal = document.querySelector('#travel-story-modal');
+    const titleNode = document.querySelector('#travel-story-title');
+    const summaryNode = document.querySelector('#travel-story-summary');
+    const linesNode = document.querySelector('#travel-story-lines');
+    const closeBtn = document.querySelector('#travel-story-close');
+    const triggers = document.querySelectorAll('.travel-story-trigger');
+
+    const openModal = (button) => {
+      if (!modal || !titleNode || !summaryNode || !linesNode) return;
+
+      const city = button.getAttribute('data-city') || 'Travel Note';
+      const summary = button.getAttribute('data-summary') || '';
+      const rawLines = button.getAttribute('data-lines') || '[]';
+
+      let lines = [];
+      try {
+        lines = JSON.parse(rawLines);
+      } catch {
+        lines = [];
+      }
+
+      titleNode.textContent = city;
+      summaryNode.textContent = summary;
+      linesNode.innerHTML = '';
+
+      lines.forEach((line) => {
+        const p = document.createElement('p');
+        p.textContent = line;
+        linesNode.appendChild(p);
+      });
+
+      modal.classList.remove('pointer-events-none', 'opacity-0');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeModal = () => {
+      if (!modal) return;
+      modal.classList.add('pointer-events-none', 'opacity-0');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    };
+
+    triggers.forEach((button) => {
+      button.addEventListener('click', () => openModal(button));
+    });
+
+    closeBtn?.addEventListener('click', closeModal);
+    modal?.addEventListener('click', (event) => {
+      if (event.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeModal();
+    });
 	</script>
 </Layout>

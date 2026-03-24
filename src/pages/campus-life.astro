@@ -2,26 +2,64 @@
 import Layout from '../layouts/Layout.astro';
 import SiteHeaderNav from '../components/SiteHeaderNav.astro';
 
-const onboardingChecklist = [
-  '报到流程与宿舍办理时间线',
-  '校园卡、网络与教务系统账号激活',
-  '课程选课避坑与学分规划建议',
-  '常用实验软件安装清单（Python / MATLAB / Git）'
+const sharedArchive = {
+  href: 'https://share.weiyun.com/nhi1RJer',
+  password: 'i98cbk'
+};
+
+const allCourses = [
+  '计算机图形学',
+  '计算机视觉',
+  '脑与认知科学',
+  '人工智能实训',
+  '数据库',
+  '智能网络与计算',
+  '最优化方法',
+  '计算机网络',
+  '算法设计与分析',
+  '机器学习'
 ];
 
-const reportLinks = [
-  { name: '数据结构实验报告模板', href: '#' },
-  { name: '操作系统实验记录（示例）', href: '#' },
-  { name: '计算机网络实验脚手架', href: '#' },
-  { name: '数据库课程项目说明书', href: '#' }
+const githubCourses = new Set(['机器学习', '数据库', '计算机视觉']);
+
+const githubCourseLinks: Record<string, string> = {
+  机器学习: 'https://github.com/squarlsking/SZU-ML-Spring2025-Notes',
+  数据库: 'https://github.com/squarlsking/SZU_DB',
+  计算机视觉: 'https://github.com/squarlsking/SZU-CV-Face-System'
+};
+
+const courseReportLinks = allCourses.map((course) => ({
+  course,
+  href: githubCourses.has(course) ? githubCourseLinks[course] : sharedArchive.href,
+  source: githubCourses.has(course) ? 'github' : 'archive'
+}));
+
+const lifeNotes = [
+  {
+    id: 'freshman-guide',
+    section: '新生入学指南',
+    title: '新生入学清单',
+    body: '入学前后高频事项与资料准备清单。'
+  },
+  {
+    id: 'cpp-ta-note',
+    section: 'CPP 助教心得',
+    title: 'CPP 助教Debug心得',
+    body: '作为CPP助教，在看学弟学妹的debug时的一些感悟'
+  }
 ];
 
-const usefulPlatforms = [
-  { name: '教务系统', href: '#' },
-  { name: '课程平台 / LMS', href: '#' },
-  { name: '图书馆资源门户', href: '#' },
-  { name: '学院通知与答疑群入口', href: '#' }
-];
+const notePageSize = 2;
+const notePages = [] as Array<typeof lifeNotes>;
+for (let i = 0; i < lifeNotes.length; i += notePageSize) {
+  notePages.push(lifeNotes.slice(i, i + notePageSize));
+}
+
+const pageSize = 4;
+const coursePages = [] as Array<typeof courseReportLinks>;
+for (let i = 0; i < courseReportLinks.length; i += pageSize) {
+  coursePages.push(courseReportLinks.slice(i, i + pageSize));
+}
 ---
 
 <Layout title="校园指南 | 顾宇煊" description="给学弟学妹的入学与课程资源导航">
@@ -31,54 +69,240 @@ const usefulPlatforms = [
     <section class="glass rounded-3xl p-6 md:p-8">
       <p class="editorial-kicker">Campus Handbook</p>
       <h1 class="gallery-heading text-3xl font-semibold text-slate-900 md:text-4xl">校园指南</h1>
-      <p class="mt-2 text-slate-600">给学弟学妹的快速上手页面：入学流程、课程实验报告与常用平台入口。</p>
+      <p class="mt-2 text-slate-600">给学弟学妹的一页式手册：入学指南、一些实验报告以及我入学来的一点感悟。</p>
 
       <div class="mt-6 grid gap-4 lg:grid-cols-[1.2fr_1fr]">
         <article class="editorial-card rounded-2xl border border-[#dfdbcf]/80 bg-white/88 p-5">
-          <p class="text-[11px] uppercase tracking-[0.14em] text-slate-500">Onboarding</p>
-          <h2 class="gallery-heading text-2xl font-semibold text-slate-900">新生入学清单</h2>
-          <ul class="mt-3 space-y-2.5">
-            {onboardingChecklist.map((item) => (
-              <li class="flex items-start gap-2.5 text-sm text-slate-700">
-                <span class="mt-1 h-2 w-2 rounded-full bg-[#b9975a]"></span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
+          <p class="text-[11px] uppercase tracking-[0.14em] text-slate-500">Campus Living Notes</p>
+          <h2 class="gallery-heading text-2xl font-semibold text-slate-900">学校生活经验分享</h2>
+          <p class="mt-3 text-sm leading-6 text-slate-700">大学阶段当然学习也很重要，但是大学太free了，什么都可以做，但不知道做什么才是最好的，最优的。希望我的一些感悟可以帮助到后来人，有自己的一些想法</p>
+
+          <div class="mt-4 rounded-xl border border-slate-200 bg-white/90 p-3.5">
+            <div class="min-h-[15.5rem]" data-note-pages>
+              {notePages.map((page, pageIndex) => (
+                <section class={pageIndex === 0 ? '' : 'hidden'} data-note-page>
+                  <p class="text-[10px] uppercase tracking-[0.16em] text-slate-500">Page {pageIndex + 1} / {notePages.length}</p>
+                  <div class="mt-2.5 grid gap-2.5">
+                    {page.map((note) => (
+                      <button
+                        type="button"
+                        data-note-open={note.id}
+                        class="w-full rounded-lg border border-slate-100 bg-white px-3 py-3 text-left transition hover:border-slate-300 hover:bg-slate-50"
+                      >
+                        <p class="text-[10px] uppercase tracking-[0.14em] text-slate-500">{note.section}</p>
+                        <h3 class="mt-1 text-sm font-semibold text-slate-900">{note.title}</h3>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+
+            <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-200 pt-3">
+              <button type="button" data-note-prev class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50">上一页</button>
+              <p class="text-[11px] uppercase tracking-[0.14em] text-slate-500" data-note-indicator>Page 1 / {notePages.length}</p>
+              <button type="button" data-note-next class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50">下一页</button>
+            </div>
+          </div>
         </article>
 
         <article class="editorial-card rounded-2xl border border-[#dfdbcf]/80 bg-white/88 p-5">
-          <p class="text-[11px] uppercase tracking-[0.14em] text-slate-500">Lab Index</p>
-          <h2 class="gallery-heading text-2xl font-semibold text-slate-900">课程实验报告链接</h2>
-          <ul class="mt-3 space-y-2">
-            {reportLinks.map((link) => (
-              <li>
-                <a href={link.href} class="inline-flex items-center gap-2 text-sm text-slate-700 underline decoration-slate-300 underline-offset-4 hover:text-slate-900">
-                  <span>{link.name}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
+          <p class="text-[11px] uppercase tracking-[0.14em] text-slate-500">Course Atlas</p>
+          <h2 class="gallery-heading text-2xl font-semibold text-slate-900">课程实验报告</h2>
+
+          <div class="mt-3 rounded-xl border border-slate-200 bg-white/90 p-3.5">
+            <div class="min-h-[13.5rem]" data-course-pages>
+              {coursePages.map((page, pageIndex) => (
+                <section class={pageIndex === 0 ? '' : 'hidden'} data-course-page>
+                  <p class="text-[10px] uppercase tracking-[0.16em] text-slate-500">Page {pageIndex + 1} / {coursePages.length}</p>
+                  <ul class="mt-2.5 space-y-2.5">
+                    {page.map((item) => (
+                      <li class="flex items-center justify-between gap-3 rounded-lg border border-slate-100 bg-white px-3 py-2">
+                        <span class="text-sm text-slate-700">{item.course}</span>
+                        <a
+                          href={item.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          class="text-xs font-medium text-slate-700 underline decoration-slate-300 underline-offset-4 hover:text-slate-900"
+                        >
+                          {item.source === 'github' ? 'GitHub' : '课程资料'}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
+            </div>
+
+            <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-200 pt-3">
+              <button type="button" data-course-prev class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50">上一页</button>
+              <p class="text-[11px] uppercase tracking-[0.14em] text-slate-500" data-course-indicator>Page 1 / {coursePages.length}</p>
+              <button type="button" data-course-next class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50">下一页</button>
+            </div>
+          </div>
+
+          <p class="mt-3 text-xs text-slate-500">机器学习 / 数据库 / 计算机视觉是 GitHub 链接；其余课程统一指向腾讯微云（密码：{sharedArchive.password}）。</p>
         </article>
       </div>
 
-      <article class="editorial-card mt-4 rounded-2xl border border-[#dfdbcf]/80 bg-white/88 p-5">
-        <p class="text-[11px] uppercase tracking-[0.14em] text-slate-500">Service Portals</p>
-        <h2 class="gallery-heading text-2xl font-semibold text-slate-900">常用平台入口</h2>
-        <div class="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          {usefulPlatforms.map((link) => (
-            <a href={link.href} class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50">
-              {link.name}
-            </a>
-          ))}
-        </div>
-      </article>
-
-      <p class="mt-4 text-xs text-slate-500">提示：把上面的 <code>#</code> 链接替换为你真实的网盘、仓库或文档地址即可直接使用。</p>
-
-      <div class="mt-5 rounded-xl border border-dashed border-slate-300/80 bg-white/65 p-3 text-xs text-slate-500">
-        更新建议：每学期更新一次课程资源，旧版本保留归档，方便后续同学对照。
+      <div data-note-modal class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4">
+        <article class="flex max-h-[82vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-[#dfdbcf]/80 bg-white p-5 shadow-2xl">
+          <p class="text-[10px] uppercase tracking-[0.16em] text-slate-500" data-note-modal-section></p>
+          <h3 class="mt-1 text-xl font-semibold text-slate-900" data-note-modal-title></h3>
+          <div class="mt-3 max-h-[56vh] overflow-y-auto whitespace-pre-line pr-1 text-sm leading-6 text-slate-700" data-note-modal-body></div>
+          <a
+            data-note-modal-link
+            href="#"
+            target="_blank"
+            rel="noreferrer"
+            class="mt-3 hidden inline-flex items-center gap-2 text-sm font-medium text-slate-700 underline decoration-slate-300 underline-offset-4 hover:text-slate-900"
+          ></a>
+          <div class="mt-5 flex justify-end">
+            <button type="button" data-note-close class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50">关闭</button>
+          </div>
+        </article>
       </div>
     </section>
   </main>
+
+  <script>
+    const setupPager = ({
+      pageSelector,
+      indicatorSelector,
+      prevSelector,
+      nextSelector
+    }) => {
+      const pages = Array.from(document.querySelectorAll(pageSelector));
+      const indicator = document.querySelector(indicatorSelector);
+      const prevBtn = document.querySelector(prevSelector);
+      const nextBtn = document.querySelector(nextSelector);
+
+      if (!pages.length) {
+        return;
+      }
+
+      let currentPage = 0;
+
+      const renderPage = () => {
+        pages.forEach((page, index) => {
+          if (index === currentPage) {
+            page.classList.remove('hidden');
+          } else {
+            page.classList.add('hidden');
+          }
+        });
+
+        if (indicator) {
+          indicator.textContent = `Page ${currentPage + 1} / ${pages.length}`;
+        }
+
+        if (prevBtn) {
+          prevBtn.toggleAttribute('disabled', currentPage === 0);
+        }
+
+        if (nextBtn) {
+          nextBtn.toggleAttribute('disabled', currentPage === pages.length - 1);
+        }
+      };
+
+      prevBtn?.addEventListener('click', () => {
+        if (currentPage > 0) {
+          currentPage -= 1;
+          renderPage();
+        }
+      });
+
+      nextBtn?.addEventListener('click', () => {
+        if (currentPage < pages.length - 1) {
+          currentPage += 1;
+          renderPage();
+        }
+      });
+
+      renderPage();
+    };
+
+    setupPager({
+      pageSelector: '[data-note-page]',
+      indicatorSelector: '[data-note-indicator]',
+      prevSelector: '[data-note-prev]',
+      nextSelector: '[data-note-next]'
+    });
+
+    setupPager({
+      pageSelector: '[data-course-page]',
+      indicatorSelector: '[data-course-indicator]',
+      prevSelector: '[data-course-prev]',
+      nextSelector: '[data-course-next]'
+    });
+
+    const noteData = {
+      'freshman-guide': {
+        section: '新生入学指南',
+        title: '新生入学清单',
+        body: `给学弟学妹的入学清单建议：\n\n1. 证件与资料\n- 录取通知书、身份证、银行卡、证件照电子版与纸质版。\n\n2. 账号与系统\n- 提前激活校园账号，确认教务系统、校园网、邮箱可用。\n\n3. 课程准备\n- 提前查看培养方案与选课要求，区分必修/选修/先修课。\n\n4. 生活物品\n- 常用药品、排插、雨具、收纳用品优先准备。\n\n5. 开学第一周\n- 先熟悉教学楼、图书馆、打印店和辅导员联系方式。\n\n这份清单会持续更新，你也可以按自己的专业方向二次补充。`
+      },
+      'cpp-ta-note': {
+        section: 'CPP 助教经验',
+        title: 'OJ 常见报错与隐藏 Bug 排查指南（长期更新）',
+        body: `做题时最省时间的能力不是“会写”，而是“会查错”。建议尽早熟悉 IDE 的 Debug 功能（断点、单步、查看变量、调用栈），把“玄学错误”变成可定位的问题。\n\n0. 先确认环境差异：本地 != OJ\n- 多数 OJ 是 Linux + GCC/G++，而本地常见是 Windows + VS/Dev-C++。\n- 平台、编译器、编译选项不同，会导致“本地可过、OJ 报错”。\n- 先默认环境更严格，不要先怀疑 OJ。\n\n1. 本地能跑，OJ 编译错误（Compile Error）\n常见原因：\n- 使用了平台特有函数（如 scanf_s）。\n- 头文件不全：memset 需要 <cstring>，sort 需要 <algorithm>。\n- 使用了某些编译器扩展语法。\n排查要点：\n- 先看报错行附近是否是“未声明”“符号找不到”“模板匹配失败”。\n- 检查函数和头文件是否跨平台。\n\n2. 本地能跑，OJ 运行错误（Runtime Error）\n高频原因：\n- 数组越界（最常见）。\n- 野指针/空指针解引用。\n- 递归过深导致栈溢出。\n- 除以 0、访问空容器。\n典型迷惑现象：\n- 结果看起来对，程序结尾才崩。\n说明：\n- 轻微越界可能先覆盖无关区域，函数返回时触发栈保护，出现 stack smashing detected 或 Segmentation fault。\n排查要点：\n- 优先查数组范围、循环边界、指针有效性。\n- 用调用栈定位崩溃点，不要只盯最后一行。\n\n3. 运行超时（Time Limit Exceeded）\n常见原因：\n- 死循环。\n- 循环变量没更新，或更新方向错误。\n- break/return 条件写错，永远触发不到。\n排查要点：\n- 每个 while/for 都问一句：它靠什么结束？\n- 观察关键变量是否在逼近终止条件。\n\n4. 本地看起来一样，OJ 判 Wrong Answer\n常见原因：\n- 多空格、少空格、多换行、少换行、顺序不一致。\n- 调试输出未删除。\n- 混入不可见字符（如 '\\0'）。\n排查要点：\n- 严格按题目格式逐项核对。\n- 提交前删除所有调试输出。\n- 字符串题重点检查终止符与边界。\n\n5. Dev-C++ 常见陷阱：改了代码像没改\n现象：\n- 仍报旧错误，或运行结果仍是旧版本。\n原因：\n- 缓存/时间戳问题。\n- 旧 exe 没退出，导致新产物未替换。\n处理：\n- 重启 Dev-C++。\n- 在任务管理器结束残留进程后再编译。\n\n6. 通用建议：自己造“反例”\n建议覆盖：\n- 正负数、0、极值。\n- 空输入、单元素、全相同、单调序列。\n- 字符大小写、空格、换行。\n结论：\n- 造边界数据比盲改快得多，能显著提升一次通过率。`
+      }
+    };
+
+    const modal = document.querySelector('[data-note-modal]');
+    const modalSection = document.querySelector('[data-note-modal-section]');
+    const modalTitle = document.querySelector('[data-note-modal-title]');
+    const modalBody = document.querySelector('[data-note-modal-body]');
+    const modalLink = document.querySelector('[data-note-modal-link]');
+    const closeBtn = document.querySelector('[data-note-close]');
+    const openBtns = Array.from(document.querySelectorAll('[data-note-open]'));
+
+    const openModal = (id) => {
+      const note = noteData[id];
+      if (!note || !modal || !modalSection || !modalTitle || !modalBody || !modalLink) {
+        return;
+      }
+
+      modalSection.textContent = note.section;
+      modalTitle.textContent = note.title;
+      modalBody.textContent = note.body || '（待补充）';
+
+      if (note.linkName && note.linkHref) {
+        modalLink.textContent = note.linkName;
+        modalLink.setAttribute('href', note.linkHref);
+        modalLink.classList.remove('hidden');
+      } else {
+        modalLink.classList.add('hidden');
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeModal = () => {
+      if (!modal) {
+        return;
+      }
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    };
+
+    openBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-note-open');
+        if (id) {
+          openModal(id);
+        }
+      });
+    });
+
+    closeBtn?.addEventListener('click', closeModal);
+    modal?.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
+  </script>
 </Layout>
