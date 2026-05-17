@@ -1,125 +1,79 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SiteHeaderNav from '../components/SiteHeaderNav.astro';
-import { nowWorking } from '../data/now-working';
+import PostCard from '../components/log/PostCard.astro';
+import SocialIconRow from '../components/log/SocialIconRow.astro';
 import { getNotes } from '../lib/notes';
-import image1 from '../assets/image_1.jpg';
-import image2 from '../assets/image_2.jpg';
+import imgHead from '../assets/imgHead.png';
 
 const notes = await getNotes();
-
-const articleItems = notes.map((item) => ({
-	title: item.title,
-	excerpt: item.summary,
-	date: item.date.toLocaleDateString('en-US'),
-	href: item.url
-}));
-
-const socialLinks = [
-	{ label: 'GitHub', href: 'https://github.com/squarlsking?tab=repositories' },
-	{ label: 'Bilibili', href: 'https://space.bilibili.com/3546385267820867?spm_id_from=333.1007.0.0' }
-] as const;
+const homePreview = notes.slice(0, 6);
+const postCount = notes.length;
 ---
 
-<Layout title="Yuxuan Gu | Personal Homepage & Blog" description="A computer science undergraduate learning mathematics.">
-	<section class="intro-screen flex min-h-[100svh] items-center justify-center px-6">
-		<div class="text-center">
-			<p class="intro-kicker mb-5 text-xs uppercase tracking-[0.35em]">curated homepage</p>
-			<h1 class="bilingual-title intro-title mx-auto text-4xl font-bold md:text-6xl">
-				<span class="line-en">Hello World</span>
-				<span class="line-zh">Welcome</span>
-			</h1>
-			<p class="intro-sub mt-8 text-sm md:text-base">Scroll down to enter my digital gallery.</p>
+<Layout
+	title="Yuxuan Gu | Personal Homepage & Blog"
+	description="Computer science undergraduate documenting learning notes and side projects."
+	htmlClass="home-entry"
+>
+	<section class="intro-screen home-snap-intro flex min-h-[100dvh] flex-col" aria-label="Welcome">
+		<div class="flex flex-1 flex-col items-center justify-center px-6 py-16 md:px-10">
+			<h1 class="home-intro-splash">Hello! Welcome to Yuxuan’s Log!</h1>
+		</div>
+		<div class="home-scroll-cue" aria-hidden="true">
+			<span>Scroll</span>
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<path d="M12 5v14M5 12l7 7 7-7"></path>
+			</svg>
 		</div>
 	</section>
 
-	<main id="home-content" class="editorial-home mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 md:px-8 md:py-12">
-		<SiteHeaderNav current="home" />
+	<main id="home-main" class="home-snap-main log-page-bg">
+		<div class="log-shell pb-16 pt-2">
+			<SiteHeaderNav current="posts" />
 
-		<section class="ed-grid">
-			<div class="ed-top-left ed-rule">
-				<h1 class="ed-name">Yuxuan Gu</h1>
-				<p class="ed-identity-sub">
-					<span>A computer science undergraduate</span>
-					<span>currently learning mathematics.</span>
-				</p>
-				<div class="ed-social-links">
-					{socialLinks.map((link) => (
-						<a href={link.href} target="_blank" rel="noreferrer" class="ed-social-link">{link.label}</a>
-					))}
-				</div>
-				<section class="ed-ledger">
-					<div class="ed-ledger-head">
-						<h2 class="ed-title ed-ledger-title">Week Plan</h2>
-						<span class="ed-mono">WEEK {nowWorking.weekLabel}</span>
-					</div>
-					<ul>
-						{nowWorking.items.map((item) => (
-							<li class="ed-ledger-item">
-								<span class={`ed-check ${item.done ? 'is-done' : ''}`}></span>
-								<span>{item.label}</span>
-							</li>
-						))}
-					</ul>
-				</section>
-			</div>
-
-			<div class="ed-top-right ed-rule">
-				<img src={image1.src} alt="Primary abstract architectural visual" class="ed-anchor-image" />
-			</div>
-
-			<div class="ed-bottom-main ed-rule">
-				<div class="ed-feed-layout">
-					<img src={image2.src} alt="Secondary accent visual" class="ed-accent-s" />
-					<div class="ed-feed-content">
-						<p class="ed-mono ed-feed-meta">CS, NOVEL, GAME, LOGIC SYSTEMS</p>
-						<h2 class="ed-title ed-feed-heading">Article Feed</h2>
-						<div class="ed-feed-list">
-							{articleItems.map((item) => (
-								<a href={item.href} class="ed-feed-item">
-									<p class="ed-mono ed-feed-date">{item.date}</p>
-									<h3 class="ed-feed-title">{item.title}</h3>
-									<p class="ed-feed-excerpt">{item.excerpt}</p>
-								</a>
-							))}
+			<header class="log-hero">
+				<div class="log-hero-panel log-hero-panel--minimal">
+					<div class="log-hero-main">
+						<h1 class="log-hero-heading">
+							<span class="log-hero-hello">Hello!</span>
+							<span class="log-hero-title-line">Welcome to Yuxuan’s Log</span>
+						</h1>
+						<p class="log-hero-lead">
+							Hi, I’m Yuxuan (顾宇煊). I write learning notes on CS and math here—often drafted with AI, always
+							edited by me. If anything reads awkward, that’s still on me. Thanks for visiting.
+						</p>
+						<div class="log-hero-social log-hero-social--minimal">
+							<SocialIconRow />
 						</div>
 					</div>
+
+					<aside class="log-hero-aside" aria-label="Profile">
+						<img src={imgHead.src} alt="Yuxuan Gu" class="log-hero-avatar" width={imgHead.width} height={imgHead.height} />
+						<p class="log-hero-aside-name">Yuxuan Gu</p>
+						<p class="log-hero-aside-meta">{postCount} posts · CS · Math</p>
+					</aside>
 				</div>
-			</div>
+			</header>
 
-			<aside class="ed-research-row ed-rule">
-				<p class="ed-mono">ONGOING RESEARCH</p>
-				<h2 class="ed-title">Research Inquiry</h2>
-				<p class="ed-mono ed-placeholder">Future scholastic inquiries to follow...</p>
-			</aside>
-			</div>
-		</section>
+			<div class="log-home-feed">
+				<p class="log-section-label">Recent writing</p>
+				<section class="log-post-stack" aria-label="Recent posts">
+					{homePreview.map((note) => (
+						<PostCard note={note} />
+					))}
+				</section>
 
+				<p class="log-more-link">
+					<a href="/posts">View all posts →</a>
+				</p>
+			</div>
+		</div>
 	</main>
 
 	<script>
-		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		const introSeenKey = 'intro-seen-v1';
-
-		if (window.location.hash === '#home-content') {
+		if (window.location.hash === '#home-main') {
 			history.replaceState(null, '', window.location.pathname + window.location.search);
 		}
-
-		window.scrollTo({ top: 0, behavior: 'auto' });
-
-		if (!prefersReducedMotion) {
-			document.body.classList.add('intro-lock');
-		}
-
-		const hasSeenIntro = localStorage.getItem(introSeenKey) === '1';
-		const holdDuration = prefersReducedMotion ? 0 : hasSeenIntro ? 800 : 2600;
-
-		if (!hasSeenIntro) {
-			localStorage.setItem(introSeenKey, '1');
-		}
-
-		window.setTimeout(() => {
-			document.body.classList.remove('intro-lock');
-		}, holdDuration);
 	</script>
 </Layout>

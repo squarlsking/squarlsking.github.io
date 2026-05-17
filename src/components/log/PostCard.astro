@@ -1,0 +1,35 @@
+---
+import type { NoteViewModel } from '../../lib/notes';
+import { estimateReadMinutes, kindLabel } from '../../lib/notes';
+
+interface Props {
+	note: NoteViewModel;
+	author?: string;
+}
+
+const { note, author = 'Yuxuan Gu' } = Astro.props;
+
+const dateShort = note.date.toLocaleDateString('en-US', {
+	year: 'numeric',
+	month: 'short',
+	day: 'numeric'
+});
+const minutes = estimateReadMinutes(note.summary);
+---
+
+<article class="log-post-card">
+	<a href={note.url} class="log-post-card__link">
+		<div class="log-post-card__top">
+			<h2 class="log-post-card__title">{note.title}</h2>
+			<span class="log-post-card__kind">{kindLabel(note.kind)}</span>
+		</div>
+		<p class="log-post-card__excerpt">{note.summary}</p>
+		<p class="log-post-card__meta">
+			<time datetime={note.date.toISOString()}>{dateShort}</time>
+			<span class="log-post-card__sep" aria-hidden="true">·</span>
+			<span>{minutes} min read</span>
+			<span class="log-post-card__sep" aria-hidden="true">·</span>
+			<span>{author}</span>
+		</p>
+	</a>
+</article>

@@ -1,20 +1,28 @@
 ---
+import '../styles/tailwind.css';
 import '../styles/global.css';
 import 'katex/dist/katex.min.css';
 
 interface Props {
 	title?: string;
 	description?: string;
+	bodyClass?: string;
+	htmlClass?: string;
 }
 
 const {
 	title = '顾宇煊 | Personal Site',
-	description = '要好好学数学的计算机本科生'
+	description = '要好好学数学的计算机本科生',
+	bodyClass = '',
+	htmlClass = ''
 } = Astro.props as Props;
+
+const bodyClassList = ['min-h-screen', 'antialiased', bodyClass].filter(Boolean).join(' ');
+const htmlClassList = [htmlClass].filter(Boolean).join(' ');
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" class={htmlClassList || undefined}>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -35,12 +43,12 @@ const {
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 		<link
-			href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap"
+			href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap"
 			rel="stylesheet"
 		/>
 		<title>{title}</title>
 	</head>
-	<body class="min-h-screen antialiased">
+	<body class={bodyClassList}>
 		<slot />
 	</body>
 </html>

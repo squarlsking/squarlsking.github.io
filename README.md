@@ -22,23 +22,30 @@ npm run preview
 nvm use
 ```
 
+### 在 Conda 环境 `Post` 里用 Node（不要用 `pip install npm`）
+
+`pip install npm` 安装的是 PyPI 上的 **Python 包**，不是 Node 自带的包管理器，无法用来跑 Astro。
+
+在已激活的 `Post` 环境中安装 Node（与 `.nvmrc` 对齐）：
+
+```sh
+conda activate Post
+conda install -c conda-forge "nodejs=22.12.*" -y
+```
+
+然后在本仓库根目录执行 `npm install`、`npm run dev`、`npm run build`。若使用 `conda run -n Post npm run build` 时 conda 因控制台编码报错，可先 `conda activate Post`，再直接运行 `npm run build`；或在 PowerShell 中先执行 `chcp 65001` 再构建。
+
+临时把当前终端接到 `Post` 里的 Node（不激活整个环境时）：
+
+```powershell
+$env:PATH = "D:\CondaENV\envs\Post;D:\CondaENV\envs\Post\Scripts;" + $env:PATH
+```
+（若你的 Conda 安装路径不同，把 `D:\CondaENV\envs\Post` 换成 `conda env list` 里 `Post` 对应的路径。）
+
 ## 重要提醒
 
 - 不要编辑 `dist/` 目录下的文件，`dist/` 是构建产物。
 - 只编辑 `src/` 下的源文件。
-
-## 每周更新 Now Working On
-
-每周只改一个文件：
-
-- `src/data/now-working.ts`
-
-你需要改两处：
-
-1. `weekLabel`：例如 `2026-W13`
-2. `items`：本周任务和 `done` 状态
-
-主页会自动读取并显示，不用再手改页面结构。
 
 ## 笔记写作位置（支持 LaTeX）
 
@@ -65,11 +72,9 @@ $$
 
 你只要新增/修改 `src/content/notes` 的 MDX 文件，以下内容会自动更新：
 
-1. 首页笔记卡片（可点击）
-2. 数学笔记页面
-3. 论文思考页面
-4. 笔记详情页：`/notes/{slug}/`
-5. 静态 JSON 接口：`/notes.json`
+1. 归档页 `/posts` 的完整列表（首页仅保留进入归档的链接）
+2. 笔记详情页：`/notes/{slug}/`
+3. 静态 JSON 接口：`/notes.json`
 
 统一数据逻辑在：
 
@@ -79,9 +84,15 @@ $$
 
 - `src/pages/notes/[slug].astro`
 
+归档页在：
+
+- `src/pages/posts.astro`
+
 静态 JSON 接口在：
 
 - `src/pages/notes.json.ts`
+
+旧路径 `/math-notes`、`/paper-thoughts`、`/life-travel` 会重定向到 `/posts`。
 
 ## 发布流程
 

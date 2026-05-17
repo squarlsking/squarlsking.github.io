@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SiteHeaderNav from '../components/SiteHeaderNav.astro';
+import PostCard from '../components/log/PostCard.astro';
+import { getNotes } from '../lib/notes';
+
+const notes = await getNotes();
+---
+
+<Layout title="Posts | Yuxuan Gu" description="Learning notes, paper memos, and life fragments in one place.">
+	<main class="log-page-bg min-h-screen">
+		<div class="log-shell py-10">
+			<SiteHeaderNav current="posts" />
+
+			<header class="log-page-head">
+				<h1 class="log-page-title">Posts</h1>
+				<p class="log-page-desc">All entries, newest first.</p>
+			</header>
+
+			<div class="log-post-stack">
+				{notes.map((note) => (
+					<PostCard note={note} />
+				))}
+			</div>
+		</div>
+	</main>
+</Layout>

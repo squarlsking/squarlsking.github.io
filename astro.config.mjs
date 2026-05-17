@@ -11,6 +11,12 @@ import rehypeKatex from 'rehype-katex';
 export default defineConfig({
   site: 'https://squarlsking.github.io',
   output: 'static',
+  redirects: {
+    '/math-notes': '/posts',
+    '/paper-thoughts': '/posts',
+    '/life-travel': '/posts',
+    '/tags': '/posts'
+  },
   vite: {
     plugins: [tailwindcss()]
   },

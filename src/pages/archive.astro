@@ -1,0 +1,36 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SiteHeaderNav from '../components/SiteHeaderNav.astro';
+import PostCard from '../components/log/PostCard.astro';
+import { getNotesByYear } from '../lib/notes';
+
+const yearGroups = await getNotesByYear();
+---
+
+<Layout title="Archive | Yuxuan Gu" description="All posts grouped by year.">
+	<main class="log-page-bg min-h-screen">
+		<div class="log-shell py-10">
+			<SiteHeaderNav current="archive" />
+
+			<header class="log-page-head">
+				<h1 class="log-page-title">Archive</h1>
+				<p class="log-page-desc">Chronological archive by year.</p>
+			</header>
+
+			<div class="log-archive">
+				{yearGroups.map((group) => (
+					<section class="log-archive-year" aria-labelledby={`y-${group.year}`}>
+						<h2 id={`y-${group.year}`} class="log-archive-year-title">
+							{group.year}
+						</h2>
+						<div class="log-post-stack">
+							{group.items.map((note) => (
+								<PostCard note={note} />
+							))}
+						</div>
+					</section>
+				))}
+			</div>
+		</div>
+	</main>
+</Layout>

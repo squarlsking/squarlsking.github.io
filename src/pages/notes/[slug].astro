@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import SiteHeaderNav from '../../components/SiteHeaderNav.astro';
+import { kindLabel } from '../../lib/notes';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -17,12 +18,13 @@ const { Content } = await render(note);
 ---
 
 <Layout title={`${note.data.title} | 顾宇煊`} description={note.data.summary}>
-  <main class="mx-auto w-full max-w-4xl px-4 py-10 md:px-6">
-    <SiteHeaderNav />
+  <main class="log-page-bg min-h-screen">
+  <div class="mx-auto w-full max-w-[min(72rem,94vw)] px-4 py-10 md:px-6">
+    <SiteHeaderNav current="posts" />
 
     <article class="glass mt-6 rounded-3xl p-6 md:p-8">
       <header class="mb-6 border-b border-slate-200/70 pb-5">
-        <p class="mb-2 text-xs font-medium uppercase tracking-[0.12em] text-slate-500">{note.data.kind}</p>
+        <p class="mb-2 text-xs font-medium uppercase tracking-[0.12em] text-slate-500">{kindLabel(note.data.kind)}</p>
         <h1 class="text-3xl font-bold leading-tight text-slate-900">{note.data.title}</h1>
         <p class="mt-2 text-sm text-slate-600">{note.data.summary}</p>
         <p class="mt-2 text-xs text-slate-400">{note.data.date.toLocaleDateString('zh-CN')}</p>
@@ -32,5 +34,6 @@ const { Content } = await render(note);
         <Content />
       </section>
     </article>
+  </div>
   </main>
 </Layout>

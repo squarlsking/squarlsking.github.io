@@ -1,78 +1,105 @@
 ---
 interface Props {
-  current?: 'home' | 'math' | 'paper' | 'travel' | 'campus';
+	current?: 'posts' | 'archive' | 'search' | 'campus';
 }
 
-const { current = 'home' } = Astro.props as Props;
+const { current = 'posts' } = Astro.props as Props;
 
-const navItems = [
-  { key: 'home', label: 'Home', href: '/' },
-  { key: 'math', label: 'Math Notes', href: '/math-notes' },
-  { key: 'paper', label: 'Paper Thoughts', href: '/paper-thoughts' },
-  { key: 'travel', label: 'Life & Travel', href: '/life-travel' },
-  { key: 'campus', label: 'Campus Guide', href: '/campus-life' }
+const sectionLinks = [
+	{ key: 'posts', label: 'Posts', href: '/posts' },
+	{ key: 'archive', label: 'Archive', href: '/archive' },
+	{ key: 'search', label: 'Search', href: '/search' },
+	{ key: 'campus', label: 'Campus life', href: '/campus-life' }
 ] as const;
 ---
 
-<header class="site-header-nav sticky top-3 z-30 rounded-2xl border border-white/75 backdrop-blur-md">
-  <nav class="flex flex-wrap items-center gap-2">
-    {navItems.map((item) => (
-      <a
-        href={item.href}
-        class={`nav-link rounded-lg font-medium ${current === item.key ? 'is-active' : ''}`}
-      >
-        {item.label}
-      </a>
-    ))}
+<header class="site-header-nav log-site-header sticky top-0 z-30 border-b backdrop-blur-md" style="border-color: var(--log-card-border)">
+	<div class="log-shell log-header-row flex flex-nowrap items-center gap-3 py-3.5 md:gap-4">
+		<nav class="log-primary-nav flex min-w-0 flex-1 flex-nowrap items-center gap-x-0 overflow-x-auto overscroll-x-contain" aria-label="Primary">
+			<a href="/" class="log-brand shrink-0">Yuxuan’s Log</a>
+			<span class="log-header-sep shrink-0" aria-hidden="true">|</span>
+			{sectionLinks.map((item) => (
+				<a href={item.href} class={`log-nav-link shrink-0 ${current === item.key ? 'is-active' : ''}`}>
+					{item.label}
+				</a>
+			))}
+		</nav>
 
-    <button type="button" class="theme-toggle-btn" data-theme-toggle>
-      <span data-theme-label>Daylight Paper</span>
-    </button>
-  </nav>
+		<button
+			type="button"
+			class="log-theme-toggle shrink-0"
+			data-site-theme-toggle
+			aria-label="Switch color theme"
+			title="Theme"
+		>
+			<svg class="log-theme-icon log-theme-icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+			</svg>
+			<svg class="log-theme-icon log-theme-icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" aria-hidden="true">
+				<circle cx="12" cy="12" r="4" />
+				<path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-linecap="round" />
+			</svg>
+		</button>
+	</div>
 </header>
 
-<script>
-  const THEME_KEY = 'site-theme-override';
-  const root = document.documentElement;
-  const toggleBtn = document.querySelector('[data-theme-toggle]');
-  const toggleLabel = document.querySelector('[data-theme-label]');
-  const getAutoTheme = () => {
-    const hour = new Date().getHours();
-    return hour >= 7 && hour < 19 ? 'mint' : 'night';
-  };
+<script is:inline>
+	(() => {
+		if (window.__squarlThemeNavBound) {
+			return;
+		}
+		window.__squarlThemeNavBound = true;
 
-  const syncThemeLabel = () => {
-    if (!toggleLabel) {
-      return;
-    }
+		const THEME_KEY = 'site-theme-override';
+		const root = document.documentElement;
+		const mqMobile = window.matchMedia('(max-width: 767px)');
 
-    const current = root.getAttribute('data-theme') === 'night' ? 'night' : 'mint';
-    const isMobile = window.matchMedia('(max-width: 767px)').matches;
-    if (isMobile) {
-      toggleLabel.textContent = current === 'mint' ? 'Day' : 'Night';
-      return;
-    }
-    toggleLabel.textContent = current === 'mint' ? 'Daylight Paper' : 'Midnight Obsidian';
-  };
+		const getAutoTheme = () => {
+			const hour = new Date().getHours();
+			return hour >= 7 && hour < 19 ? 'mint' : 'night';
+		};
 
-  if (!root.getAttribute('data-theme')) {
-    const saved = localStorage.getItem(THEME_KEY);
-    const theme = saved === 'mint' || saved === 'night' ? saved : getAutoTheme();
-    root.setAttribute('data-theme', theme);
-  }
+		const bind = () => {
+			const toggleBtn = document.querySelector('[data-site-theme-toggle]');
+			if (!toggleBtn) {
+				return;
+			}
 
-  syncThemeLabel();
+			const syncThemeUi = () => {
+				const themeNow = root.getAttribute('data-theme') === 'night' ? 'night' : 'mint';
+				const isMobile = mqMobile.matches;
+				if (themeNow === 'mint') {
+					toggleBtn.setAttribute('aria-label', 'Switch to dark mode');
+					toggleBtn.setAttribute('title', isMobile ? 'Dark' : 'Dark mode');
+				} else {
+					toggleBtn.setAttribute('aria-label', 'Switch to light mode');
+					toggleBtn.setAttribute('title', isMobile ? 'Light' : 'Light mode');
+				}
+			};
 
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-      const current = root.getAttribute('data-theme') === 'night' ? 'night' : 'mint';
-      const next = current === 'mint' ? 'night' : 'mint';
-      root.setAttribute('data-theme', next);
-      localStorage.setItem(THEME_KEY, next);
-      syncThemeLabel();
-    });
-  }
+			if (!root.getAttribute('data-theme')) {
+				const saved = localStorage.getItem(THEME_KEY);
+				const theme = saved === 'mint' || saved === 'night' ? saved : getAutoTheme();
+				root.setAttribute('data-theme', theme);
+			}
 
-  window.matchMedia('(max-width: 767px)').addEventListener('change', syncThemeLabel);
+			syncThemeUi();
 
+			toggleBtn.addEventListener('click', () => {
+				const themeNow = root.getAttribute('data-theme') === 'night' ? 'night' : 'mint';
+				const next = themeNow === 'mint' ? 'night' : 'mint';
+				root.setAttribute('data-theme', next);
+				localStorage.setItem(THEME_KEY, next);
+				syncThemeUi();
+			});
+
+			mqMobile.addEventListener('change', syncThemeUi);
+		};
+
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', bind, { once: true });
+		} else {
+			bind();
+		}
+	})();
 </script>

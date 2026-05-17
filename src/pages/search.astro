@@ -1,0 +1,136 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SiteHeaderNav from '../components/SiteHeaderNav.astro';
+---
+
+<Layout title="Search | Yuxuan Gu" description="Search posts by title, summary, or tags.">
+	<main class="log-page-bg min-h-screen">
+		<div class="log-shell py-10">
+			<SiteHeaderNav current="search" />
+
+			<header class="log-page-head">
+				<h1 class="log-page-title">Search</h1>
+				<p class="log-page-desc">Filter posts in your browser. Matches title, summary, or tags.</p>
+			</header>
+
+			<div class="log-search-box">
+				<label for="log-search-input" class="sr-only">Search query</label>
+				<input
+					id="log-search-input"
+					type="search"
+					class="log-search-input"
+					placeholder="Type to search…"
+					autocomplete="off"
+					spellcheck="false"
+				/>
+			</div>
+
+			<p id="log-search-status" class="log-search-status" hidden></p>
+			<div id="log-search-results" class="log-post-stack" aria-live="polite"></div>
+		</div>
+	</main>
+
+	<script>
+		const input = document.querySelector('#log-search-input');
+		const results = document.querySelector('#log-search-results');
+		const status = document.querySelector('#log-search-status');
+
+		const escapeHtml = (s) => {
+			const div = document.createElement('div');
+			div.textContent = s;
+			return div.innerHTML;
+		};
+
+		const formatDate = (iso) => {
+			const d = new Date(iso);
+			return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+		};
+
+		const estimateMin = (summary) => {
+			const n = Math.ceil(String(summary).replace(/\s+/g, ' ').trim().length / 420);
+			return Math.max(1, Math.min(60, n));
+		};
+
+		let cache = null;
+
+		const render = (items, query) => {
+			if (!results || !status) return;
+			results.innerHTML = '';
+			status.hidden = false;
+
+			if (!query) {
+				status.textContent = 'Enter a keyword to search.';
+				return;
+			}
+
+			if (!items.length) {
+				status.textContent = 'No posts matched.';
+				return;
+			}
+
+			status.textContent = `${items.length} result(s) for “${query}”.`;
+
+			for (const n of items) {
+				const mins = estimateMin(n.summary);
+				const dateStr = formatDate(n.date);
+				const article = document.createElement('article');
+				article.className = 'log-post-card';
+				article.innerHTML = `
+					<a href="${escapeHtml(n.url)}" class="log-post-card__link">
+						<h2 class="log-post-card__title">${escapeHtml(n.title)}</h2>
+						<p class="log-post-card__excerpt">${escapeHtml(n.summary)}</p>
+						<p class="log-post-card__meta">
+							<span>Date: ${escapeHtml(dateStr)}</span>
+							<span class="log-post-card__sep" aria-hidden="true">|</span>
+							<span>Estimated Reading Time: ${mins} min</span>
+							<span class="log-post-card__sep" aria-hidden="true">|</span>
+							<span>Author: Yuxuan Gu</span>
+						</p>
+					</a>
+				`;
+				results.appendChild(article);
+			}
+		};
+
+		const run = async () => {
+			const q = (input && 'value' in input ? String(input.value) : '').trim().toLowerCase();
+			if (!results || !status) return;
+
+			if (!cache) {
+				status.hidden = false;
+				status.textContent = 'Loading index…';
+				try {
+					const res = await fetch('/notes.json');
+					cache = await res.json();
+				} catch {
+					status.textContent = 'Could not load /notes.json.';
+					return;
+				}
+			}
+
+			if (!q) {
+				render([], '');
+				return;
+			}
+
+			const filtered = cache.filter((n) => {
+				const title = String(n.title).toLowerCase();
+				const summary = String(n.summary).toLowerCase();
+				const tags = (n.tags || []).map((t) => String(t).toLowerCase());
+				return (
+					title.includes(q) ||
+					summary.includes(q) ||
+					tags.some((t) => t.includes(q))
+				);
+			});
+
+			render(filtered, q);
+		};
+
+		input?.addEventListener('input', () => {
+			void run();
+		});
+
+		void run();
+	</script>
+</Layout>
