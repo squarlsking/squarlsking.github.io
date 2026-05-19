@@ -56,18 +56,20 @@ const postCount = notes.length;
 				</div>
 			</header>
 
-			<div class="log-home-feed">
-				<p class="log-section-label">Recent writing</p>
-				<section class="log-post-stack" aria-label="Recent posts">
-					{homePreview.map((note) => (
-						<PostCard note={note} />
-					))}
-				</section>
+			{postCount > 0 && (
+				<div class="log-home-feed">
+					<p class="log-section-label">Recent writing</p>
+					<section class="log-post-stack" aria-label="Recent posts">
+						{homePreview.map((note) => (
+							<PostCard note={note} />
+						))}
+					</section>
 
-				<p class="log-more-link">
-					<a href="/posts">View all posts →</a>
-				</p>
-			</div>
+					<p class="log-more-link">
+						<a href="/posts">View all posts →</a>
+					</p>
+				</div>
+			)}
 		</div>
 	</main>
 

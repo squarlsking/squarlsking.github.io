@@ -17,11 +17,17 @@ const notes = await getNotes();
 				<p class="log-page-desc">All entries, newest first.</p>
 			</header>
 
-			<div class="log-post-stack">
-				{notes.map((note) => (
-					<PostCard note={note} />
-				))}
-			</div>
+			{notes.length > 0 ? (
+				<div class="log-post-stack">
+					{notes.map((note) => (
+						<PostCard note={note} />
+					))}
+				</div>
+			) : (
+				<p class="log-page-desc">
+					No posts yet. See <a href="/campus-life">Campus life</a> for course notes and TA tools.
+				</p>
+			)}
 		</div>
 	</main>
 </Layout>
