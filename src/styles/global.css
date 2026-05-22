@@ -1840,3 +1840,158 @@ html[data-theme='night'] .log-theme-icon--moon {
 		font-size: 0.98rem;
 	}
 }
+
+/* —— Note / blog article body (MDX) —— */
+.note-prose {
+	max-width: none;
+	font-size: 1rem;
+	line-height: 1.75;
+	color: #334155;
+}
+
+.note-prose > :first-child {
+	margin-top: 0;
+}
+
+.note-prose h2 {
+	margin: 2.25rem 0 1rem;
+	font-size: 1.5rem;
+	font-weight: 700;
+	line-height: 1.3;
+	color: #0f172a;
+}
+
+.note-prose h3 {
+	margin: 1.75rem 0 0.75rem;
+	font-size: 1.25rem;
+	font-weight: 700;
+	line-height: 1.35;
+	color: #0f172a;
+}
+
+.note-prose h4 {
+	margin: 1.25rem 0 0.5rem;
+	font-size: 1.1rem;
+	font-weight: 600;
+	line-height: 1.4;
+	color: #1e293b;
+}
+
+.note-prose p {
+	margin: 0 0 1rem;
+}
+
+.note-prose ul,
+.note-prose ol {
+	margin: 0 0 1rem;
+	padding-left: 1.35rem;
+}
+
+.note-prose li {
+	margin: 0.35rem 0;
+}
+
+.note-prose strong {
+	font-weight: 700;
+	color: #0f172a;
+}
+
+.note-prose a {
+	color: #0369a1;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.note-prose code {
+	font-size: 0.9em;
+	color: #334155;
+}
+
+.note-prose .note-table-caption {
+	margin: 1.25rem 0 0.5rem;
+	font-size: 1.05rem;
+	font-weight: 700;
+	color: #0f172a;
+}
+
+.note-prose .note-table-wrap {
+	margin: 0 0 1.5rem;
+	overflow-x: auto;
+}
+
+.note-prose table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.92rem;
+}
+
+.note-prose th,
+.note-prose td {
+	border: 1px solid #e2e8f0;
+	padding: 0.55rem 0.75rem;
+	text-align: left;
+	vertical-align: top;
+}
+
+.note-prose th {
+	font-weight: 700;
+	background: #f8fafc;
+	color: #0f172a;
+}
+
+.note-prose .note-figure-pair {
+	display: grid;
+	gap: 1rem;
+	margin: 1.5rem 0;
+}
+
+@media (min-width: 640px) {
+	.note-prose .note-figure-pair {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+.note-prose .note-figure-pair__frame {
+	display: flex;
+	height: 16rem;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	border-radius: 0.5rem;
+	border: 1px solid #e2e8f0;
+	background: #f8fafc;
+}
+
+.note-prose .note-figure-pair__frame img {
+	max-height: 100%;
+	max-width: 100%;
+	object-fit: contain;
+}
+
+.note-prose .note-figure-compact {
+	margin: 1.5rem auto;
+	max-width: 28rem;
+}
+
+.note-prose .note-figure-compact img {
+	width: 100%;
+	border-radius: 0.5rem;
+	border: 1px solid #e2e8f0;
+}
+
+.note-prose figcaption {
+	margin-top: 0.5rem;
+	text-align: center;
+	font-size: 0.875rem;
+	color: #64748b;
+}
+
+.note-prose .note-figure-single {
+	margin: 1.5rem 0;
+}
+
+.note-prose .note-figure-single img {
+	width: 100%;
+	border-radius: 0.5rem;
+	border: 1px solid #e2e8f0;
+}

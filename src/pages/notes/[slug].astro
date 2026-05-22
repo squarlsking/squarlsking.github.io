@@ -30,7 +30,7 @@ const { Content } = await render(note);
         <p class="mt-2 text-xs text-slate-400">{note.data.date.toLocaleDateString('zh-CN')}</p>
       </header>
 
-      <section class="prose prose-slate max-w-none prose-headings:font-semibold prose-a:text-sky-700 prose-code:text-slate-700">
+      <section class="note-prose">
         <Content />
       </section>
     </article>
