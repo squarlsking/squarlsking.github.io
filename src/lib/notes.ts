@@ -9,7 +9,7 @@ export function kindLabel(kind: NoteKind): string {
     case 'paper':
       return 'Paper';
     case 'project':
-      return 'Life';
+      return 'Project';
   }
 }
 
