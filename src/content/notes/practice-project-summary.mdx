@@ -45,8 +45,8 @@ featured: true
 
 我们首先从给定的目标视频中提取需要识别的 DJI Camera 的图片，利用 3D 生成模型（混元 AI）实现 3D 资产的生成。然后利用 Blender 进行 PBR（Physically-Based Rendering）数据的生成，这里的 PBR 数据具有多视角、多光照的特性，每个物体对应的 Bounding Box 都被投影到 2D 平面，并且做了高斯处理，方便模型收敛。如下公式所示（直接截的图）：
 
-<figure class="not-prose my-6">
-  <img src="/images/notes/practice-project-summary/fig04-formula.png" alt="高斯热图公式" loading="lazy" class="mx-auto max-w-xl rounded-lg border border-slate-200" />
+<figure class="note-figure-formula">
+  <img src="/images/notes/practice-project-summary/fig04-formula.png" alt="高斯热图公式" loading="lazy" />
 </figure>
 
 并且相机屏幕端做了视频贴图插入的处理。生成的 PBR 数据作为训练集，去训练模型。不同的 PBR 裁剪方式、模型架构、训练策略都会明显影响到训练的效果。最终模型将预测 8 个 channel，这里的每个 channel 预测一个点的 heatmap，然后提取每个 channel 中 max 的 20 个点的平均值作为预测的角点，最后按照拓扑结构连线，如下图 4 所示得到预测效果。

@@ -1996,6 +1996,29 @@ html[data-theme='night'] .log-theme-icon--moon {
 	border: 1px solid #e2e8f0;
 }
 
+/* Make every note image fluid; avoid max-w-* utilities that overflow phones */
+.note-prose img {
+	max-width: 100%;
+	height: auto;
+}
+
+.note-prose .note-figure-formula {
+	margin: 1.5rem auto;
+	width: 100%;
+	max-width: 36rem;
+}
+
+.note-prose .note-figure-formula img {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	height: auto;
+	margin: 0 auto;
+	border-radius: 0.5rem;
+	border: 1px solid #e2e8f0;
+	background: #fff;
+}
+
 .note-prose .note-callout {
 	margin: 1.25rem 0 1.5rem;
 	padding: 0.95rem 1.1rem;
@@ -2099,6 +2122,11 @@ html[data-theme='night'] .log-theme-icon--moon {
 
 .note-prose blockquote.note-pullquote p {
 	margin: 0;
+}
+
+:root[data-theme='night'] .note-prose .note-figure-formula img {
+	border-color: rgba(255, 255, 255, 0.12);
+	background: #111;
 }
 
 :root[data-theme='night'] .note-prose {

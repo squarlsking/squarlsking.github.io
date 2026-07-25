@@ -14,21 +14,8 @@ const postCount = notes.length;
 <Layout
 	title="Yuxuan Gu | Personal Homepage & Blog"
 	description="Computer science undergraduate documenting learning notes and side projects."
-	htmlClass="home-entry"
 >
-	<section class="intro-screen home-snap-intro flex min-h-[100dvh] flex-col" aria-label="Welcome">
-		<div class="flex flex-1 flex-col items-center justify-center px-6 py-16 md:px-10">
-			<h1 class="home-intro-splash">Hello! Welcome to Yuxuan’s Log!</h1>
-		</div>
-		<div class="home-scroll-cue" aria-hidden="true">
-			<span>Scroll</span>
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-				<path d="M12 5v14M5 12l7 7 7-7"></path>
-			</svg>
-		</div>
-	</section>
-
-	<main id="home-main" class="home-snap-main log-page-bg">
+	<div class="log-page-bg">
 		<div class="log-shell pb-16 pt-2">
 			<SiteHeaderNav current="posts" />
 
@@ -71,11 +58,5 @@ const postCount = notes.length;
 				</div>
 			)}
 		</div>
-	</main>
-
-	<script>
-		if (window.location.hash === '#home-main') {
-			history.replaceState(null, '', window.location.pathname + window.location.search);
-		}
-	</script>
+	</div>
 </Layout>
