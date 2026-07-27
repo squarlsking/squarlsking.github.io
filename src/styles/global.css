@@ -2003,14 +2003,20 @@ html[data-theme='night'] .log-theme-icon--moon {
 }
 
 .note-prose .katex-display {
-	margin: 1.25rem 0;
+	margin: 1.1rem 0;
 	overflow-x: auto;
 	overflow-y: hidden;
 	-webkit-overflow-scrolling: touch;
 }
 
+.note-prose .katex-display > .katex {
+	font-size: 1.05em;
+	text-align: center;
+}
+
 .note-prose .katex {
-	font-size: 1.08em;
+	font-size: 1em;
+	line-height: 1.6;
 }
 
 .note-prose .note-callout {
