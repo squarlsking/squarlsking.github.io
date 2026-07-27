@@ -7,15 +7,31 @@ import { getNotes } from '../lib/notes';
 import imgHead from '../assets/imgHead.png';
 
 const notes = await getNotes();
-const homePreview = notes.slice(0, 6);
+const homePreview = notes.slice(0, 3);
 const postCount = notes.length;
 ---
 
 <Layout
 	title="Yuxuan Gu | Personal Homepage & Blog"
 	description="Computer science undergraduate documenting learning notes and side projects."
+	htmlClass="home-entry"
 >
-	<div class="log-page-bg">
+	<section class="intro-screen home-snap-intro home-welcome" aria-label="Welcome">
+		<div class="home-welcome__glow" aria-hidden="true"></div>
+		<div class="home-welcome__inner">
+			<p class="home-welcome__kicker">Yuxuan’s Log</p>
+			<h1 class="home-intro-splash">Hello! Welcome to Yuxuan’s Log!</h1>
+			<p class="home-welcome__sub">慢慢往下看，这里有一些学习笔记与碎碎念。</p>
+		</div>
+		<a class="home-scroll-cue" href="#home-main">
+			<span>Scroll</span>
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<path d="M12 5v14M5 12l7 7 7-7"></path>
+			</svg>
+		</a>
+	</section>
+
+	<main id="home-main" class="home-snap-main log-page-bg">
 		<div class="log-shell pb-16 pt-2">
 			<SiteHeaderNav current="posts" />
 
@@ -58,5 +74,11 @@ const postCount = notes.length;
 				</div>
 			)}
 		</div>
-	</div>
+	</main>
+
+	<script>
+		if (window.location.hash === '#home-main') {
+			history.replaceState(null, '', window.location.pathname + window.location.search);
+		}
+	</script>
 </Layout>
