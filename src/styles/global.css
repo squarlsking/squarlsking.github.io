@@ -1170,13 +1170,22 @@ html.home-entry {
 
 .home-welcome__sub {
 	margin: 0.15rem 0 0;
-	max-width: 22rem;
+	max-width: 26rem;
 	font-family: var(--font-display);
 	font-size: clamp(1.05rem, 2.6vw, 1.28rem);
 	line-height: 1.65;
 	color: var(--intro-zh);
 	opacity: 0.88;
 	animation: homeWelcomeFade 1.2s ease 0.18s both;
+}
+
+.home-welcome__cite {
+	display: block;
+	margin-top: 0.55rem;
+	font-family: var(--font-hero);
+	font-size: 0.78em;
+	letter-spacing: 0.04em;
+	opacity: 0.72;
 }
 
 .home-scroll-cue {
