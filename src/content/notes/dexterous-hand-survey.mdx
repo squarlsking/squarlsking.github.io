@@ -1,0 +1,208 @@
+---
+title: "灵巧手初步了解：任务地图与论文阅读札记"
+summary: "从 Grasping 到 In-hand Manipulation 的任务分类，以及 Catch It、Dynamic Handover、CADGrasp、RMA、Visual Dexterity 等七篇工作的 setting、方法与个人笔记。"
+date: 2026-09-02
+kind: paper
+tags: ["Robotics", "Dexterous Hand", "Manipulation", "Survey"]
+featured: true
+---
+
+这周集中看了一些灵巧手相关论文，也借助 ChatGPT 做了第一轮任务梳理。下面先给出我目前理解的**任务地图**，再按论文逐条记录 **Task / Method / Insight**，最后写一点还不成熟的综合判断。
+
+## 一、灵巧手在做什么？一张任务地图
+
+灵巧手研究看起来庞杂，但大多数工作都能归到下面几类（类与类之间当然会交叉）。
+
+### 1. Grasping：抓取
+
+- **静态物体抓取**：桌面上的杯子、盒子、工具等
+- **动态物体抓取**：运动目标、下落物体、飞行物体，例如 *Catch It*、*DexCatch*
+- **Cluttered grasping**：杂乱堆叠环境中的抓取
+- **Targeted grasping**：从多个物体里抓指定目标
+- **Functional grasping**：不只是「抓住」，而是以适合后续任务的姿态抓住，比如握锤子手柄
+- **Regrasp**：第一次抓得不好，再调整抓取方式
+
+### 2. In-hand Manipulation：手内操作
+
+灵巧手最经典的一大类，物体大致仍在手中：
+
+- **Object rotation / reorientation**：在手里旋转、调整到目标 6D pose
+- **Translation**：物体在手掌/手指间平移
+- **Finger gaiting**：像转笔一样不断换手指接触
+- **Pivoting / rolling / sliding**：更细粒度的接触运动，例如把钥匙调整到可插锁姿态
+
+### 3. Dexterous / Contact-rich Manipulation
+
+比 in-hand 更宽：物体不一定始终完全在手中，接触状态不断变化，往往还要力控：
+
+开门、拉抽屉、拧瓶盖、拧旋钮、插拔插头、按按钮、peg-in-hole、插钥匙、使用剪刀……
+
+### 4. 其他常见方向（与上文交叉）
+
+| 方向 | 典型任务 | 难点直觉 |
+|------|----------|----------|
+| **Tool use** | 锤子、螺丝刀、刀、勺、笔、剪刀 | 与 functional grasp 强绑定：先抓对，再用对 |
+| **Handover / throwing / catching** | 人机/机机交接、抛接、双手抛接 | 动态、时序、协同 |
+| **Bimanual manipulation** | 双手搬运、一手固定一手操作、双手装配 | 跨手协调 |
+| **Deformable object manipulation** | 布料、绳子、软袋、食物 | 状态高维、难观测 |
+| **Assembly / precision manipulation** | 插销、装零件、连接器、螺丝、乐高 | 工业场景多，精度要求高 |
+
+---
+
+## 二、阅读过的灵巧手论文
+
+总览如下（按阅读顺序拼图）：
+
+<figure class="note-figure-single">
+  <img src="/images/notes/dexterous-hand-survey/fig01-overview.gif" alt="七篇工作总览" loading="lazy" />
+  <figcaption>图1 本周阅读的工作总览</figcaption>
+</figure>
+
+**读前提醒：**
+
+- 第 3 篇严格来说**不是灵巧手**，而是**两指平行夹爪**上的动态抓取。
+- 第 1、2 篇都属于 **throw / catch** 大类，但 **setting 不同**：一个是移动底座 + 高自由度灵巧手接飞物，一个是双手抛接的 MARL。
+- 几篇工作确实依赖深度或点云，但有的是 **RGB-D → 点云/位姿**，有的是 **仿真 privileged state**——部署时并不都在做完整场景重建。
+
+### 论文 1：*Catch It!* — 移动灵巧手空中接物（ICRA 2025）
+
+<figure class="note-figure-single">
+  <img src="/images/notes/dexterous-hand-survey/fig02-catch-it.gif" alt="Catch It 系统与两阶段 RL" loading="lazy" />
+  <figcaption>图2 Catch It：移动底座 + 臂 + 16-DoF 手，两阶段 RL</figcaption>
+</figure>
+
+- **Task**：人类把物体扔过来，移动机器人用灵巧手在空中接住。
+- **Setting**：真实系统含 RGB-D 顶视相机、Mini PC；状态包括底座速度、臂末端位姿、手关节、物体位置等。
+- **Method**：两阶段 RL——先学 tracking（臂 + 底座），再学 catching（手）；policy 直接吃当前/相邻时刻的机器人与物体状态（含物体位置与位置差），用 `K_catch` 处理状态差，**并没有像第 2 篇那样单独显式预测「目标将来会落到哪」**。
+- **Insight**：动态抓取里，**把「追物体」和「出手形」拆开**，往往比一个大 policy 硬学更稳。
+
+<div class="note-callout">
+  <span class="note-callout__label">个人笔记</span>
+  <p>我缺乏 RL 训练经验，但直观上这种 2-stage 设计就是在<strong>砍动作空间</strong>：先保证手到附近，再细调手指。对 sim2real 也更友好。</p>
+</div>
+
+### 论文 2：*Dynamic Handover: Throw and Catch with Bimanual Hands*（CoRL 2023）
+
+<figure class="note-figure-single">
+  <img src="/images/notes/dexterous-hand-survey/fig03-dynamic-handover.gif" alt="Dynamic Handover MARL 框架" loading="lazy" />
+  <figcaption>图3 双手抛接：Thrower / Catcher + Goal Estimator</figcaption>
+</figure>
+
+- **Task**：一只手抛、另一只手接，高速动态交接。
+- **Method**：MAPPO 多智能体 RL；Thrower 看 **Target Goal**，Catcher 看 **Predicted Catch Goal** + 物体位置。
+- **Insight**：核心不只是两个 policy，而是 **Goal Estimator** 把「物体将来在哪」显式预测出来，再喂给 Catcher——这和第 1 篇「分阶段跟踪 + 抓取」有关键差别：第 2 篇的预测目标是显式建模出来的。
+
+### 论文 3：*Dynamic Grasping with Reachability and Motion Awareness*（IROS 2021）
+
+<figure class="note-figure-single">
+  <img src="/images/notes/dexterous-hand-survey/fig04-dynamic-grasp-parallel.gif" alt="平行夹爪动态抓取" loading="lazy" />
+  <figcaption>图4 两指夹爪动态抓：运动预测 + 可达性过滤 + 抓取库</figcaption>
+</figure>
+
+- **Task**：平行夹爪抓<strong>运动物体</strong>（不是灵巧手）。
+- **Method**：RNN 预测未来位姿 → 从 grasp database 里转换/过滤候选 → 按 reachability 排序 → 满足 `CANGRASP` 再执行闭合。
+- **Insight**：动态抓取不一定要端到端 RL，**连续 pose estimation + future pose prediction + grasp ranking** 也能打。
+
+### 论文 4：*CADGrasp* — 杂乱场景灵巧抓取（NeurIPS 2025）
+
+<figure class="note-figure-single">
+  <img src="/images/notes/dexterous-hand-survey/fig05-cadgrasp.gif" alt="CADGrasp IBS 两阶段" loading="lazy" />
+  <figcaption>图5 CADGrasp：条件 IBS 生成 + 位姿优化</figcaption>
+</figure>
+
+- **Task**：杂乱场景中的**灵巧手抓取**，要 contact-aware 也要 collision-aware。
+- **Method**：
+  1. **Stage 1**：用条件 occupancy diffusion（3D UNet）生成 **IBS（Interaction Bisector Surface）** 中间表征；
+  2. **Stage 2**：在 IBS 约束下优化手腕位姿与手指构型。
+- **Insight**：IBS 最早可追溯到胡瑞珍老师等人在抓取表征上的工作（[Learning High-DOF Reaching-and-Grasping via Dynamic Representation of Gripper-Object Interaction](https://arxiv.org/abs/2204.13998)，SIGGRAPH 2022）；CADGrasp 不是手工算 IBS，而是 **把大量成功抓取经验蒸馏成可预测的 IBS**，再 decode 出手部位姿。
+
+### 论文 5：*In-Hand Object Rotation via Rapid Motor Adaptation*（CoRL 2022）
+
+<figure class="note-figure-single">
+  <img src="/images/notes/dexterous-hand-survey/fig06-rma-rotation.gif" alt="RMA 手内旋转" loading="lazy" />
+  <figcaption>图6 RMA：特权信息训练 base policy + 历史状态预测物体属性</figcaption>
+</figure>
+
+- **Task**：手内旋转/重定向 diverse objects。
+- **Method**：三阶段——(1) 仿真里用物体质量、摩擦等**特权信息**训 base policy；(2) 用 Adaptation Module 从关节历史估计这些属性；(3) 真实部署只依赖 proprioception 历史。
+- **Insight**：框架很漂亮，但我觉得有**明显边界**：它解决的是「已经在手里了怎么转」，**拿不起来的东西就是拿不起来**——这和 grasping 是另一条线。
+
+### 论文 6：*Visual Dexterity: In-Hand Reorientation of Novel and Complex Object Shapes*（Science Robotics）
+
+<figure class="note-figure-single">
+  <img src="/images/notes/dexterous-hand-survey/fig07-visual-dexterity.gif" alt="Visual Dexterity 点云手内重定向" loading="lazy" />
+  <figcaption>图7 Visual Dexterity：Teacher-Student + 点云 + SE(3) 对齐</figcaption>
+</figure>
+
+- **Task**：对<strong>训练时没见过</strong>的复杂形状做手内重定向。
+- **Method**：仿真里用 privileged state 训 Teacher；Student 用**局部点云**（经 SE(3) 变换对齐）模仿 Teacher，再经 rendering 微调后上真机。
+- **Insight**：和第 4 篇一样依赖几何，但这里重点不是抓，而是 **点云对齐 + 蒸馏** 让 policy 在真实视觉条件下仍能工作。
+
+### 论文 7（补充阅读）：*Efficient Residual Learning with Mixture-of-Experts for Universal Dexterous Grasping*（ICLR 2025）
+
+<figure class="note-figure-single">
+  <img src="/images/notes/dexterous-hand-survey/fig08-moe-residual-rl.gif" alt="MoE residual RL 灵巧抓取" loading="lazy" />
+  <figcaption>图8 多个 geometry-unaware expert + residual RL（MoE）</figcaption>
+</figure>
+
+- **Task**：跨物体通用灵巧抓取。
+- **Method**：先训多个**不怎么看几何**的 base expert；再冻住它们，用 Hyper-Policy 输出权重 λ<sub>t</sub> 和残差动作 a<sub>t</sub><sup>R</sup>：
+  $$
+  a_t = a_t^R + \frac{1}{\|\lambda_t\|}\sum_{i=1}^{k}\lambda_{t,i}\,a_{t,i}^{B}
+  $$
+- **Insight**：**几个模糊的 expert 负责大方向，residual RL 负责补细节**；单卡 4090 训约 12 小时，效率也不错。
+
+---
+
+## 三、横向对比
+
+### 1. 感知路线怎么选？
+
+<figure class="note-figure-compact">
+  <img src="/images/notes/dexterous-hand-survey/fig09-perception-table.gif" alt="感知路线对比表" loading="lazy" />
+  <figcaption>图9 不同感知路线的部署成本与灵巧手适用性</figcaption>
+</figure>
+
+我目前的粗结论是：
+
+- **RGB-only** 部署最便宜，但对精细接触不够；
+- **单视角 partial point cloud** 在成本和灵巧手适用性之间最均衡；
+- **完整 shape completion / mesh / NeRF** 信息最全，但重建贵、延迟高，真实部署会很痛。
+
+### 2. 感知到控制的流水线
+
+<figure class="note-figure-compact">
+  <img src="/images/notes/dexterous-hand-survey/fig10-perception-pipeline.gif" alt="灵巧操作感知流水线" loading="lazy" />
+  <figcaption>图10 从 RGB 到 policy / planner 的可能路径</figcaption>
+</figure>
+
+这张图想表达的是：**别默认所有工作都在做完整 3D 重建**。有的 policy 只吃 depth / partial point cloud；有的走 keypoint / affordance；只有部分路线需要 full shape。
+
+### 3. 几篇读下来的「家族相似性」
+
+<div class="note-layers">
+  <div class="note-layer note-layer--macro">
+    <p class="note-layer__title">动态类（1、2、3）</p>
+    <p>第 2、3 篇会显式做<strong>未来落点/位姿预测</strong>；第 1 篇更偏两阶段 RL + 当前状态跟踪。差别在 executor 是灵巧手、双手还是平行夹爪。</p>
+  </div>
+  <div class="note-layer note-layer--meso">
+    <p class="note-layer__title">表征类（4、6）</p>
+    <p>都强调几何中间量：IBS 或点云对齐。收益是 contact/collision 更可控；代价是感知与优化更重。</p>
+  </div>
+  <div class="note-layer note-layer--micro">
+    <p class="note-layer__title">策略类（5、7）</p>
+    <p>RMA 和 MoE+Residual 都在回答：仿真里学到的东西，怎么在真实系统里<strong>少依赖特权信息、又保持泛化</strong>。</p>
+  </div>
+</div>
+
+---
+
+## 四、还不成熟的吐槽
+
+有一说一，我觉得现有路线**普遍偏复杂**，尤其是强依赖场景/物体重建的那一支。真实机器人部署要的是：
+
+1. **低延迟**（飞过来的物体不会等你重建完）；
+2. **少模型**（不希望每个子任务挂一个独立 policy）；
+3. **硬件可承受**（算力、相机、标定、维护）。
+
+所以我不太确定「先 world model 生成完整姿态，再解析执行」是不是好路线——**开销太大**。今年确实有不少工作走这条线，但我个人持保留态度（也可能是因为我还没训过大规模 RL，看法会变）。
