@@ -1,0 +1,256 @@
+---
+title: "FreeGrasp：关于动态灵巧抓取的一点思考"
+summary: "当物体持续平移、旋转甚至受扰动时，灵巧手该如何抓？从 Finger Flow、Catch It 到 IBS，一个 hierarchical 假设：Tracking 负责追上它，IBS 负责抓住它。"
+date: 2026-09-09
+kind: paper
+tags: ["Robotics", "Dexterous Hand", "Dynamic Grasping", "IBS", "FreeGrasp"]
+featured: true
+---
+
+最近我在想一个动态灵巧抓取的问题：当目标物体不再静止，而是在空间中持续平移、旋转甚至受到扰动时，灵巧手应该如何完成可靠抓取？
+
+这个想法最早来自一个比较具体的 observation：很多 dexterous grasp policy 在静态物体上表现很好，但当物体具有随机姿态、线速度、角速度，或者在抓取过程中持续运动时，原先稳定的抓取策略很容易失效。问题不再只是「找到一个好的 grasp pose」，而是机器人需要在物体持续变化的过程中，同时完成接近、捕获和稳定。
+
+（上一篇任务地图见：[灵巧手初步了解](/notes/dexterous-hand-survey/)。）
+
+## 1. Problem Setting
+
+考虑一个自由运动的刚性物体，其状态表示为：
+
+$$
+X_t = (p_t, R_t, v_t, \omega_t),
+$$
+
+其中 $(p_t, R_t)$ 分别表示位置与姿态，$(v_t, \omega_t)$ 表示线速度与角速度。
+
+与普通静态抓取不同，目标在机器人运动过程中持续变化：
+
+$$
+X_{t+\Delta t} \neq X_t.
+$$
+
+更一般地，也可以允许物体持续受到外力与外力矩 $(F_t, \tau_t)$，从而产生漂移、旋转以及不可完全预测的运动。
+
+整个任务可以粗略拆成三个阶段：**接近 → 捕获 → 稳定**。其中我认为又存在两个不同尺度的问题。
+
+- **Global interception** 关心的是：物体正在往哪里运动？手掌应该去哪里与它相遇？
+- **Local dexterous adaptation** 关心的是：当目标真正进入手附近以后，每根手指应该如何根据当前局部几何关系进行调整？
+
+这两个问题虽然共同组成动态抓取，但所依赖的信息和控制尺度并不相同。
+
+## 2. Existing Works
+
+动态抓取本身并不是一个新的任务，目前已经存在多条相关研究路线。
+
+### Finger Flow — RAS 2026
+
+<figure class="note-figure-single">
+  <img src="/images/notes/freegrasp-dynamic-dexterous/fig01-finger-flow.png" alt="Finger Flow 框架" loading="lazy" />
+  <figcaption>图1 Finger Flow：Visual Tracker + Reactive Grasping Motion Generator（3 kHz）</figcaption>
+</figure>
+
+[Finger Flow](https://doi.org/10.1016/j.robot.2025.105222) 研究 multi-fingered hand 对静止或不可预测移动物体的 **reactive reach-while-grasp**。它利用实时视觉和机器人 proprioception，根据当前 hand–object relative state 不断生成机械臂和手指的运动，使机器人能够在接近目标的同时逐渐闭合手指，而不是传统的 “reach first, then grasp”。
+
+这是目前与我考虑的 task 最接近的工作之一。
+
+Finger Flow 的一个关键设计是 **hand hull**。这里的 hull 并不是简单地对整只手计算一个 convex hull，而是一个用于近似手部几何、构造 reactive reaching vector field 的连续几何表示。它主要帮助机械臂在接近目标时避免 finger–object collision，并根据当前 relative pose 调整 hand opening / closure。
+
+<figure class="note-figure-single">
+  <img src="/images/notes/freegrasp-dynamic-dexterous/fig02-hand-hull.png" alt="Finger Flow hand hull" loading="lazy" />
+  <figcaption>图2 Hand hull 与 cage → power grasp 的状态过渡</figcaption>
+</figure>
+
+但 Finger Flow 本身并不负责生成一个新的 dexterous grasp。它假设目标 grasp pose 和最终 finger configuration 已经给定，主要解决的是：
+
+<div class="note-formula">
+  How to reactively reach a desired grasp
+</div>
+
+而不是：
+
+<div class="note-formula">
+  How should the grasp itself adapt online?
+</div>
+
+换而言之，这种「给定最终抓取 states」的动态抓取，我觉得是一种不太好的方式。假如物体微微旋转了一下，那不是机械臂要绕一大圈，才能去够那个预先定好的 final pose？
+
+### Catch It! — ICRA 2025
+
+<figure class="note-figure-single">
+  <img src="/images/notes/freegrasp-dynamic-dexterous/fig03-catch-it.png" alt="Catch It 系统与两阶段 RL" loading="lazy" />
+  <figcaption>图3 Catch It：mobile base + arm + dexterous hand 的 two-stage RL</figcaption>
+</figure>
+
+[Catch It!](https://arxiv.org/abs/2411.11213) 研究 mobile base + robotic arm + dexterous hand 对随机抛掷物体的 catching，通过 two-stage RL 先学习目标 tracking，再学习 whole-body catching。它很好地说明了动态抓取中的一个核心事实：机器人首先必须解决目标运动和 interception 的问题，单纯考虑局部 finger control 是不够的。
+
+不过 Catch It! 更关注大 workspace 下的 whole-body catching：
+
+$$
+\text{target trajectory} \rightarrow \text{base/arm tracking} \rightarrow \text{catch}.
+$$
+
+局部 hand–object interaction geometry 并不是它的主要研究对象。
+
+### Dynamic Handover — CoRL 2023
+
+<figure class="note-figure-single">
+  <img src="/images/notes/freegrasp-dynamic-dexterous/fig04-dynamic-handover.png" alt="Dynamic Handover MARL" loading="lazy" />
+  <figcaption>图4 Dynamic Handover：Thrower / Catcher + Goal Estimator</figcaption>
+</figure>
+
+[Dynamic Handover](https://arxiv.org/abs/2311.03812) 研究两只多指机器人手之间的 throwing-and-catching，并专门学习 object trajectory prediction model，为 catcher 提供目标未来运动的实时估计。
+
+这进一步说明：**motion prediction** 对于高速 dynamic manipulation 是一个合理且重要的组成部分。
+
+### Spatio-temporal Motion-Aware Grasping — 2026
+
+<figure class="note-figure-single">
+  <img src="/images/notes/freegrasp-dynamic-dexterous/fig05-spatio-temporal.png" alt="Spatio-temporal motion-aware grasping" loading="lazy" />
+  <figcaption>图5 从时间序列深度图估计线速度 / 角速度并预测未来位姿</figcaption>
+</figure>
+
+近期也有工作直接从时间序列深度图中建模目标运动，通过 velocity estimation 和 spatio-temporal representation 预测未来 grasp pose，而不仅仅 tracking 当前目标。
+
+因此，「预测目标未来位置再抓取」本身也不是新的 contribution。
+
+### IBS-Grasp — SIGGRAPH 2022
+
+另一条与这个想法密切相关的研究路线是 [IBS-Grasp](https://arxiv.org/abs/2204.13998)。
+
+IBS，即 Interaction Bisector Surface，用来表示 hand / gripper 与 object 之间细粒度的空间交互关系。相比只使用 object pose 或 global point cloud，IBS 更直接地描述：
+
+> 当前手部各区域与目标物体之间的局部几何关系是什么？
+
+IBS-Grasp 使用这种表示学习 high-DOF reaching-and-grasping，并发现 IBS 能很好地支持每根手指的 fine-grained control。
+
+这给了我一个新的思路。
+
+## 3. Observation：Global Tracking 和 Local Grasp Adaptation 也许应该分开
+
+看完这些工作以后，我发现动态灵巧抓取可能包含两个性质明显不同的子问题。
+
+### Global motion reasoning
+
+目标可能在较大的空间范围内移动。这时最重要的是估计：
+
+$$
+X_{1:t} \rightarrow \hat{X}_{t+\Delta t},
+$$
+
+从而确定：
+
+$$
+T^{\mathrm{palm}}_{\mathrm{target}}.
+$$
+
+也就是：**手掌大概应该去哪里？**
+
+这一部分更适合 tracking、trajectory prediction 或 interception planning。
+
+### Local interaction reasoning
+
+但当目标已经进入 dexterous hand 的工作空间之后，问题发生了变化。此时厘米甚至毫米级的误差都会改变：
+
+- 哪根 finger 应该先接触；
+- finger 应该从哪个方向包络；
+- object 是否偏向 palm 的一侧；
+- 第一次 contact 是否需要 recovery；
+- tracking error 是否导致原先的 grasp configuration 已经不再合适。
+
+这时需要回答的是：
+
+> 手掌已经大致到位以后，每根手指具体应该怎么适应当前物体？
+
+这恰好是 IBS 擅长描述的信息。
+
+因此我产生了一个比较简单的 hypothesis：
+
+<div class="note-formula">
+  <strong>Global motion reasoning</strong> ≠ <strong>Local hand–object interaction reasoning</strong>
+</div>
+
+也许不应该要求一个统一的 representation 或 policy 同时解决这两个尺度的问题。
+
+## 4. Idea：Trajectory Tracking + Real-time IBS
+
+基于这个 observation，我目前考虑一个 hierarchical framework：
+
+<div class="note-layers">
+  <div class="note-layer note-layer--macro">
+    <p class="note-layer__title">Global</p>
+    <p>Tracking / Prediction → Palm Interception</p>
+  </div>
+  <div class="note-layer note-layer--meso">
+    <p class="note-layer__title">Local</p>
+    <p>Real-time IBS → Finger Adaptation</p>
+  </div>
+</div>
+
+整体流程为：
+
+$$
+O_{1:t} \rightarrow \text{Tracking / Motion Estimation} \rightarrow \hat{X}_{t+\Delta t} \rightarrow T^{\mathrm{palm}}_{\mathrm{target}},
+$$
+
+与此同时，根据当前真实 hand–object geometry 在线计算：
+
+$$
+\mathrm{IBS}_t = \mathrm{IBS}(H_t, O_t),
+$$
+
+并使用：
+
+$$
+q^{\mathrm{finger}}_{t+1} = \pi(\mathrm{IBS}_t, q_t)
+$$
+
+控制各个 finger。
+
+<div class="note-callout">
+  <span class="note-callout__label">直觉</span>
+  <p><strong>Tracking 负责「追上它」，IBS 负责「抓住它」。</strong> Global tracker 并不需要做到完全准确——只要最终能够把目标送进 dexterous hand 的局部 workspace，IBS controller 就可以继续根据当前真实 geometry 做闭环调整，从而补偿一部分 tracking / prediction error。</p>
+</div>
+
+这与完全依赖预先确定 grasp 的方案有所不同：目标真正进入手之后，finger configuration 仍然可以随着 hand–object interaction geometry 实时变化。
+
+## 5. A Possible Next Step: Dynamic IBS
+
+这里还有一个自然的问题。
+
+考虑两个场景，它们当前的 hand–object geometry 完全一样：
+
+$$
+\mathrm{IBS}_A = \mathrm{IBS}_B,
+$$
+
+但目标运动方向不同：
+
+$$
+v_A = -v_B,
+$$
+
+或者角速度：
+
+$$
+\omega_A = -\omega_B.
+$$
+
+原始 IBS 在这一瞬间无法区分两种情况，因为它主要编码 **geometry**，而不是 **motion**。
+
+因此，如果实验发现 vanilla IBS 在高速平移或旋转目标上存在明显瓶颈，一个自然的 extension 是把局部 dynamics 加入 interaction representation。例如在每个 interaction point $x_i$ 上加入局部相对速度：
+
+$$
+v_i^{\mathrm{rel}} = v_o + \omega_o \times (x_i - p_o) - v_h(x_i),
+$$
+
+使 representation 不仅回答「哪里可能发生 interaction？」，还能够回答「这个 interaction region 正在以什么方向和速度变化？」。
+
+感觉上这种动态抓取应该是机器人该支持的 capability。并且这种 setting 或许可以泛化到太空、水下、空中等复杂场景中的动态抓取。
+
+## References
+
+1. Meng et al. [Finger Flow: Reactive Reach-while-Grasp Generation for Robotic Arms with Multi-Fingered Hands](https://doi.org/10.1016/j.robot.2025.105222). *Robotics and Autonomous Systems*, 2026.
+2. Zhang et al. [Catch It! Learning to Catch in Flight with Mobile Dexterous Hands](https://arxiv.org/abs/2411.11213). ICRA, 2025.
+3. Huang et al. [Dynamic Handover: Throw and Catch with Bimanual Hands](https://arxiv.org/abs/2311.03812). CoRL, 2023.
+4. Jiao et al. Spatio-temporal Motion-Aware Intelligent Robotic Grasping with Velocity Estimation for Moving Objects. *Advanced Engineering Informatics*, 2026.
+5. She, Hu, et al. [Learning High-DOF Reaching-and-Grasping via Dynamic Representation of Gripper-Object Interaction](https://arxiv.org/abs/2204.13998). *ACM Transactions on Graphics* (SIGGRAPH), 2022.
