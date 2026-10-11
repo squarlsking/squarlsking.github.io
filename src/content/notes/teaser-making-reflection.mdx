@@ -1,0 +1,64 @@
+---
+title: "Teaser 制作反思"
+summary: "从 AI 概念草图到实验素材与多轮反馈，记录四次 teaser 迭代，以及信息密度、术语表达和方法图边界的反思。"
+date: 2026-10-11
+kind: course
+tags: ["Teaser", "Research", "Presentation", "Reflection"]
+featured: true
+---
+
+最近做论文 teaser，我反复改了几版。从 AI 生成的概念草图，到用实验素材重新制作，再到根据师兄和老师的反馈调整，最明显的体会是：一张图能放下很多内容，但读者未必能看懂。制作 teaser 时，我需要先想清楚，希望读者看完后记住什么，再决定哪些内容值得放进去。
+
+## 一 Teaser 先要让读者看懂什么
+
+Teaser 通常放在论文开头，帮助读者快速建立对工作的第一印象。对这次工作，我希望它讲清楚一个具体问题：现有抓取策略会在部分物体上失败，而我们希望利用这些失败推动策略改进。图中最重要的内容，因此是失败现象、改进后的结果，以及它们与论文 motivation 的联系。
+
+读者第一次看图时，还不了解方法细节。如果需要先读懂一串术语、辨认几十张小图，才能明白论文想做什么，teaser 就给读者增加了理解负担。
+
+## 二 我的四次改图
+
+### V1 用 AI 草图探索表达
+
+最初的版本完全由 AI 生成。我把语义场景、当前策略的成功与失败、策略改进，以及改进后的结果串在一张图里。它让我有了一个直观的构图方向，也把前后对比这条主线画了出来。
+
+<figure class="note-figure-single">
+  <img src="/images/notes/teaser-making-reflection/fig01-ai-concept.png" alt="V1 概念草图 展示语义场景 初始策略结果 策略改进和改进后结果" width="1422" height="474" loading="lazy" />
+  <figcaption>图 1 V1 由 AI 生成的概念草图</figcaption>
+</figure>
+
+回头看，这一版适合用来讨论构图。由于抓取画面由 AI 生成，它不能作为实验结果的证据。后续制作需要用实际素材替换，并检查图中的成功、失败和文字描述是否对应。
+
+### V2 用实验素材重新制作
+
+第二版沿用了相似的布局，把结果部分换成了实验素材。内容与实际工作更贴近了，但视觉效果仍然不太理想。左侧场景卡片、两组结果和中间标识之间的风格不够统一，整张图看起来还有些像几块素材拼在一起。
+
+<figure class="note-figure-single">
+  <img src="/images/notes/teaser-making-reflection/fig02-experiment-layout.png" alt="V2 语义场景 当前策略抓取结果 EvoDexPolicy 和改进后的抓取结果" width="2402" height="793" loading="lazy" />
+  <figcaption>图 2 V2 用实验素材复刻原有布局</figcaption>
+</figure>
+
+### V3 增加结果后信息变得过密
+
+后来师兄觉得图还不够大气，我又调整了版式，并加入更多结果。上方保留当前策略与改进后的对比，下方增加其他策略的抓取示例，希望更充分地展示改进效果。
+
+<figure class="note-figure-single">
+  <img src="/images/notes/teaser-making-reflection/fig03-dense-results.png" alt="V3 上方当前策略和改进策略对比 下方 ResDex 与 UniverDex 的结果对比" width="1578" height="866" loading="lazy" />
+  <figcaption>图 3 V3 增加了多组抓取结果</figcaption>
+</figure>
+
+老师指出了两个问题：结果太密；最左边的 open-vocabulary 让人看不懂。图里虽然多了证据，却缺少明确的阅读顺序。尤其是 open-vocabulary 这个标签，单靠场景卡片很难解释它在任务中的具体含义，读者还需要自己猜它与后续抓取结果的关系。
+
+### V4 保留前后对比并调整信息层级
+
+最后一版保留了当前策略与改进后策略的对比，删去了上一版下方的大量结果。中间突出 failure-driven self-improvement，下方用桌面、浴室和厨房的场景及抓取示例，说明希望扩展的应用范围。
+
+<figure class="note-figure-single">
+  <img src="/images/notes/teaser-making-reflection/fig04-final-teaser.png" alt="V4 上方当前策略与改进策略对比 下方以桌面 浴室 厨房呈现开放世界物体抓取的应用目标" width="1836" height="601" loading="lazy" />
+  <figcaption>图 4 V4 聚焦策略改进并单独呈现应用目标</figcaption>
+</figure>
+
+## 三 两条反馈带来的具体反思
+
+“结果太密”让我意识到，选择代表性结果也是制作 teaser 的一部分。如果几个例子传达的是相同信息，可以优先保留最容易辨认的一组；更多物体、更多策略和完整对比，放在实验部分展开。这样读者才能先抓住核心变化。
+
+“open-vocabulary 让人看不懂”则提醒我，术语需要有具体含义，并由画面或图注解释。类似地，这次图里的复杂 pipeline 可以留到方法图中说明。Teaser 里只保留理解核心问题所必需的机制，避免与后文重复，也避免让方法细节遮住结果。
